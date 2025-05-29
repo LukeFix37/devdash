@@ -7,7 +7,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ isDarkMode, toggleDarkMode }) => {
   return (
-    <header className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow">
+    <header className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow-md rounded-md">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">DevDash</h1>
       <button
         onClick={toggleDarkMode}

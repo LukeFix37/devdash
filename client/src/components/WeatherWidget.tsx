@@ -1,0 +1,1 @@
+// Widget that displays the current weather for a given location on the dashboard.

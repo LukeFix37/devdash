@@ -1,14 +1,12 @@
+// tailwind.config.js
 module.exports = {
-  darkMode: 'class',
+  darkMode: 'class', // Enable class-based dark mode toggling
+  content: [
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
+  ],
   theme: {
-    extend: {
-      colors: {
-        primary: 'rgb(31,41,55)',
-        secondary: 'rgb(107,114,128)',
-        background: 'rgb(243,244,246)',
-        foreground: 'rgb(17,24,39)',
-      },
-    },
+    extend: {},
   },
   plugins: [],
 };

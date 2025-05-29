@@ -6,7 +6,6 @@
   border-radius: 0.5rem; /* rounded-lg */
   background-color: var(--bg-light);
   color: var(--text-light);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
