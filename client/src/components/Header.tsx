@@ -1,24 +1,25 @@
-import { Moon, Sun } from 'lucide-react';
-import useDarkMode from '../hooks/useDarkMode';
-import '../App.css';
+import React from "react";
 
-export default function Header() {
-  const [theme, setTheme] = useDarkMode();
+interface HeaderProps {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+}
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
+const Header: React.FC<HeaderProps> = ({ isDarkMode, toggleDarkMode }) => {
   return (
-    <header className="flex items-center justify-between p-4 bg-primary text-primary-foreground shadow-lg rounded-xl mb-6">
-      <h1 className="text-2xl font-bold">DevDash</h1>
+    <header className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">DevDash</h1>
       <button
-        onClick={toggleTheme}
-        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition"
-        aria-label="Toggle Theme"
+        onClick={toggleDarkMode}
+        className={`rounded-full p-3 text-xl transition-colors duration-300 ${
+          isDarkMode ? "bg-blue-600" : "bg-slate-400"
+        } text-white`}
+        aria-label="Toggle dark mode"
       >
-        {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        {isDarkMode ? "🌞" : "🌙"}
       </button>
     </header>
   );
-}
+};
+
+export default Header;

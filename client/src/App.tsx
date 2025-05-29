@@ -1,26 +1,39 @@
-import DndProviderWrapper from "./dnd/DndProviderWrapper";
+import React, { useEffect, useState } from "react";
+import './App.css';
 import Header from "./components/Header";
-import Task from "./components/TaskList";
+import TaskList from "./components/TaskList";
 import Calendar from "./components/Calendar";
 
 function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedMode = localStorage.getItem("darkMode") === "true";
+    setIsDarkMode(savedMode);
+  }, []);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+    localStorage.setItem("darkMode", isDarkMode.toString());
+  }, [isDarkMode]);
+
   return (
-    <DndProviderWrapper>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
-        <Header />
-        <div className="grid grid-cols-3 gap-6 p-6">
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Task List</h2>
-            <Task id={1} title="Design UI" />
-            <Task id={2} title="Fix bugs" />
-            <Task id={3} title="Deploy build" />
-          </div>
-          <div className="col-span-2">
-            <Calendar />
-          </div>
-        </div>
+    <div className="app-container">
+      <Header isDarkMode={isDarkMode} toggleDarkMode={() => setIsDarkMode(!isDarkMode)} />
+
+      <div className="flex-col-gap">
+        <section className="section flex-row-gap">
+          <TaskList />
+        </section>
+        <section className="section">
+          <Calendar />
+        </section>
       </div>
-    </DndProviderWrapper>
+    </div>
   );
 }
 
