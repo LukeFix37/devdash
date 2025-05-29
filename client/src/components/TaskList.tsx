@@ -46,9 +46,7 @@ const TaskList: React.FC<TaskListProps> = ({
       </h2>
       <ul>
         {tasks.length === 0 && (
-          <li className="text-gray-600 dark:text-gray-400 italic">
-            No tasks added yet.
-          </li>
+          <li className="text-gray-600 dark:text-gray-400 italic">No tasks added yet.</li>
         )}
         {tasks.map((task) => (
           <li
@@ -78,24 +76,20 @@ const TaskList: React.FC<TaskListProps> = ({
                 </span>
               )}
             </div>
-
-            {/* Fix here: flex container with consistent height and align items */}
-            <div className="task-buttons flex items-center space-x-2 flex-shrink-0">
+            <div className="task-buttons">
               {editTaskId === task.id ? (
                 <>
                   <button
                     onClick={saveEdit}
-                    className="btn-save px-4 py-1 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition leading-none"
+                    className="btn-save px-3 py-1 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition"
                     aria-label="Save task edit"
-                    type="button"
                   >
                     Save
                   </button>
                   <button
                     onClick={cancelEditing}
-                    className="btn-cancel px-4 py-1 rounded-full bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold transition leading-none"
+                    className="btn-cancel px-3 py-1 rounded-full bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold transition"
                     aria-label="Cancel task edit"
-                    type="button"
                   >
                     Cancel
                   </button>
@@ -104,17 +98,15 @@ const TaskList: React.FC<TaskListProps> = ({
                 <>
                   <button
                     onClick={() => startEditing(task.id, task.title)}
-                    className="btn-edit px-4 py-1 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition leading-none"
+                    className="btn-edit px-3 py-1 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition"
                     aria-label="Edit task"
-                    type="button"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => deleteTask(task.id)}
-                    className="btn-delete px-4 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition leading-none"
+                    className="btn-delete px-3 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"
                     aria-label="Delete task"
-                    type="button"
                   >
                     Delete
                   </button>

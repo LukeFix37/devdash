@@ -7,7 +7,6 @@ import "./App.css";
 interface Task {
   id: number;
   title: string;
-  completed: boolean;
 }
 
 const App: React.FC = () => {
@@ -36,16 +35,8 @@ const App: React.FC = () => {
 
   const addTask = (title: string) => {
     if (!title.trim()) return;
-    const newTask: Task = { id: Date.now(), title: title.trim(), completed: false };
+    const newTask: Task = { id: Date.now(), title: title.trim() };
     setTasks((prev) => [...prev, newTask]);
-  };
-
-  const toggleTask = (id: number) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
   };
 
   const editTask = (id: number, newTitle: string) => {
@@ -65,7 +56,6 @@ const App: React.FC = () => {
         <AddTask addTask={addTask} />
         <TaskList
           tasks={tasks}
-          toggleTask={toggleTask}
           editTask={editTask}
           deleteTask={deleteTask}
         />
