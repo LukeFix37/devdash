@@ -223,6 +223,45 @@ header.header {
   background-color: var(--button-hover-default);
 }
 
+/* Dark mode overrides for FullCalendar */
+
+.dark .calendar-widget {
+  background-color: #1f2937; /* Tailwind's gray-800 */
+  color: #d1d5db; /* Tailwind's gray-300 */
+}
+
+.dark .calendar-widget .fc {
+  color: #d1d5db;
+  background-color: #1f2937;
+}
+
+.dark .calendar-widget .fc-toolbar-title {
+  color: #f9fafb; /* lighter title */
+}
+
+.dark .calendar-widget .fc-daygrid-day-number {
+  color: #d1d5db;
+}
+
+.dark .calendar-widget .fc-daygrid-day {
+  border-color: #374151; /* Tailwind gray-700 */
+  background-color: #111827; /* Tailwind gray-900 */
+}
+
+.dark .calendar-widget .fc-daygrid-day:hover {
+  background-color: #374151; /* slightly lighter gray */
+}
+
+.dark .calendar-widget .fc-col-header-cell-cushion {
+  color: #9ca3af; /* Tailwind gray-400 */
+  background-color: #1f2937;
+}
+
+.dark .calendar-widget .fc-scrollgrid {
+  border-color: #374151;
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   main {
