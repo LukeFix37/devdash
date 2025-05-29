@@ -11,16 +11,19 @@ interface Task {
 }
 
 const App: React.FC = () => {
-  // Initialize dark mode from localStorage or system preference
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    if (saved !== null) return saved === "true";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
-
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  // Sync dark mode state to HTML class and localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    if (saved !== null) {
+      setIsDarkMode(saved === "true");
+    } else {
+      setIsDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches);
+    }
+  }, []);
+
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
@@ -52,9 +55,32 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
       <main className="flex justify-center gap-6 p-6">
-        <AddTask addTask={addTask} />
-        <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
-        <Calendar events={[]} /> {/* Empty events array for now */}
+        {!selectedDate ? (
+          <>
+            <AddTask addTask={addTask} />
+            <TaskList
+              tasks={tasks}
+              editTask={editTask}
+              deleteTask={deleteTask}
+            />
+            <Calendar
+              events={[]}
+              onDateClick={(dateStr) => setSelectedDate(dateStr)}
+            />
+          </>
+        ) : (
+          <div className="w-full max-w-4xl p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">Tasks for {selectedDate}</h2>
+            <button
+              onClick={() => setSelectedDate(null)}
+              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Back to Calendar
+            </button>
+            <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
+            <AddTask addTask={addTask} />
+          </div>
+        )}
       </main>
     </div>
   );
