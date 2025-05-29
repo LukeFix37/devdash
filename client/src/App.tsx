@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "./components/Header";
 import AddTask from "./components/AddTask";
 import TaskList from "./components/TaskList";
+import Calendar from "./components/Calendar";
 import "./App.css";
 
 interface Task {
@@ -10,18 +11,16 @@ interface Task {
 }
 
 const App: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // Initialize dark mode from localStorage or system preference
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem("darkMode");
+    if (saved !== null) return saved === "true";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("darkMode");
-    if (saved !== null) {
-      setIsDarkMode(saved === "true");
-    } else {
-      setIsDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    }
-  }, []);
-
+  // Sync dark mode state to HTML class and localStorage
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
@@ -54,11 +53,8 @@ const App: React.FC = () => {
       <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
       <main className="flex justify-center gap-6 p-6">
         <AddTask addTask={addTask} />
-        <TaskList
-          tasks={tasks}
-          editTask={editTask}
-          deleteTask={deleteTask}
-        />
+        <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
+        <Calendar events={[]} /> {/* Empty events array for now */}
       </main>
     </div>
   );
