@@ -48,7 +48,7 @@ main {
   gap: 1.5rem;
   flex-wrap: nowrap; /* no wrapping */
   align-items: flex-start; /* prevent stretching */
-  justify-content: center;
+  justify-content: left;
   padding: 1.5rem;
 }
 
@@ -63,7 +63,7 @@ main {
   width: 480px;
   flex-shrink: 0;  /* prevent shrinking */
   flex-grow: 0;    /* prevent growing */
-  transition: background-color 0.4s ease, box-shadow 0.4s ease;
+  transition: background-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 .add-task-widget {
