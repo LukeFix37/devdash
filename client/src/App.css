@@ -44,13 +44,14 @@ body, #root {
 }
 
 main {
-  flex: 1;
   display: flex;
-  justify-content: center;
   gap: 1.5rem;
+  flex-wrap: nowrap; /* no wrapping */
+  align-items: flex-start; /* prevent stretching */
+  justify-content: center;
   padding: 1.5rem;
-  flex-wrap: wrap;
 }
+
 
 /* ===== Widget (card) styling ===== */
 .widget {
@@ -59,9 +60,19 @@ main {
   box-shadow: 0 4px 10px var(--shadow-color);
   padding: 1.5rem;
   max-width: 480px;
-  width: 100%;
+  width: 480px;
+  flex-shrink: 0;  /* prevent shrinking */
+  flex-grow: 0;    /* prevent growing */
   transition: background-color 0.4s ease, box-shadow 0.4s ease;
 }
+
+.add-task-widget {
+  width: 480px !important;
+  max-width: 480px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+}
+
 
 /* ===== Buttons ===== */
 button {
@@ -191,7 +202,6 @@ header.header {
   background-color: var(--primary-hover);
 }
 
-
 /* Responsive adjustments */
 @media (max-width: 640px) {
   main {
@@ -200,5 +210,6 @@ header.header {
   }
   .widget {
     max-width: 100%;
+    width: 100%;
   }
 }

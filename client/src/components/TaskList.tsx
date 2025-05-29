@@ -40,17 +40,17 @@ const TaskList: React.FC<TaskListProps> = ({
   };
 
   return (
-    <div className="widget p-4 bg-white dark:bg-gray-700 rounded-md shadow-md w-full max-w-md">
+    <div className="widget bg-white dark:bg-gray-700 rounded-md shadow-md p-6 w-full max-w-md">
       <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
         Tasks
       </h2>
       <ul>
+        {tasks.length === 0 && (
+          <li className="text-gray-600 dark:text-gray-400 italic">No tasks added yet.</li>
+        )}
         {tasks.map((task) => (
-          <li
-            key={task.id}
-            className="task-item"
-          >
-            <div className="task-content">
+          <li key={task.id} className="task-item flex items-center justify-between mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md shadow-sm">
+            <div className="flex-grow min-w-0 mr-4">
               {editTaskId === task.id ? (
                 <input
                   type="text"
@@ -60,26 +60,33 @@ const TaskList: React.FC<TaskListProps> = ({
                     if (e.key === "Enter") saveEdit();
                     if (e.key === "Escape") cancelEditing();
                   }}
-                  className="task-input"
                   autoFocus
+                  className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-3 py-1 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               ) : (
-                <span className="task-title">{task.title}</span>
+                <span
+                  className="block truncate cursor-pointer select-none text-gray-900 dark:text-gray-100"
+                  onDoubleClick={() => startEditing(task.id, task.title)}
+                  title="Double click to edit"
+                >
+                  {task.title}
+                </span>
               )}
             </div>
-
-            <div className="task-buttons">
+            <div className="flex space-x-2 flex-shrink-0">
               {editTaskId === task.id ? (
                 <>
                   <button
                     onClick={saveEdit}
-                    className="btn btn-save"
+                    className="btn-save px-3 py-1 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition"
+                    aria-label="Save task edit"
                   >
                     Save
                   </button>
                   <button
                     onClick={cancelEditing}
-                    className="btn btn-cancel"
+                    className="btn-cancel px-3 py-1 rounded-full bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold transition"
+                    aria-label="Cancel task edit"
                   >
                     Cancel
                   </button>
@@ -88,13 +95,15 @@ const TaskList: React.FC<TaskListProps> = ({
                 <>
                   <button
                     onClick={() => startEditing(task.id, task.title)}
-                    className="btn btn-edit"
+                    className="btn-edit px-3 py-1 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition"
+                    aria-label="Edit task"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => deleteTask(task.id)}
-                    className="btn btn-delete"
+                    className="btn-delete px-3 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"
+                    aria-label="Delete task"
                   >
                     Delete
                   </button>
@@ -103,9 +112,6 @@ const TaskList: React.FC<TaskListProps> = ({
             </div>
           </li>
         ))}
-        {tasks.length === 0 && (
-          <li className="no-tasks">No tasks added yet.</li>
-        )}
       </ul>
     </div>
   );
