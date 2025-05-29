@@ -76,7 +76,6 @@ main {
 
 /* ===== Buttons ===== */
 button {
-  margin-top: 10px;
   font-family: inherit;
   color: white;
   background-color: var(--button-bg, #2563eb); /* default blue-600 */
@@ -88,6 +87,10 @@ button {
   font-size: 0.875rem;
   font-weight: 600;
   transition: background-color 0.2s ease;
+}
+
+.add-task-widget button {
+  margin-top: 10px;
 }
 
 button:disabled,
@@ -124,6 +127,14 @@ button[disabled] {
 }
 .btn-cancel:hover {
   background-color: #4b5563; /* gray-700 */
+}
+
+.task-buttons {
+  display: flex !important;
+  gap: 0.5rem !important; /* space between buttons */
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  margin-left: 10px;
 }
 
 /* ===== Inputs ===== */

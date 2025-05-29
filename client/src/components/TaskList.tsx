@@ -46,10 +46,15 @@ const TaskList: React.FC<TaskListProps> = ({
       </h2>
       <ul>
         {tasks.length === 0 && (
-          <li className="text-gray-600 dark:text-gray-400 italic">No tasks added yet.</li>
+          <li className="text-gray-600 dark:text-gray-400 italic">
+            No tasks added yet.
+          </li>
         )}
         {tasks.map((task) => (
-          <li key={task.id} className="task-item flex items-center justify-between mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md shadow-sm">
+          <li
+            key={task.id}
+            className="task-item flex items-center justify-between mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md shadow-sm"
+          >
             <div className="flex-grow min-w-0 mr-4">
               {editTaskId === task.id ? (
                 <input
@@ -73,20 +78,24 @@ const TaskList: React.FC<TaskListProps> = ({
                 </span>
               )}
             </div>
-            <div className="flex space-x-2 flex-shrink-0">
+
+            {/* Fix here: flex container with consistent height and align items */}
+            <div className="task-buttons flex items-center space-x-2 flex-shrink-0">
               {editTaskId === task.id ? (
                 <>
                   <button
                     onClick={saveEdit}
-                    className="btn-save px-3 py-1 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition"
+                    className="btn-save px-4 py-1 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition leading-none"
                     aria-label="Save task edit"
+                    type="button"
                   >
                     Save
                   </button>
                   <button
                     onClick={cancelEditing}
-                    className="btn-cancel px-3 py-1 rounded-full bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold transition"
+                    className="btn-cancel px-4 py-1 rounded-full bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold transition leading-none"
                     aria-label="Cancel task edit"
+                    type="button"
                   >
                     Cancel
                   </button>
@@ -95,15 +104,17 @@ const TaskList: React.FC<TaskListProps> = ({
                 <>
                   <button
                     onClick={() => startEditing(task.id, task.title)}
-                    className="btn-edit px-3 py-1 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition"
+                    className="btn-edit px-4 py-1 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition leading-none"
                     aria-label="Edit task"
+                    type="button"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => deleteTask(task.id)}
-                    className="btn-delete px-3 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"
+                    className="btn-delete px-4 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition leading-none"
                     aria-label="Delete task"
+                    type="button"
                   >
                     Delete
                   </button>
