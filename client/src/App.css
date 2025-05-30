@@ -23,7 +23,7 @@ html, body {
 :root {
   --bg-color: #f9fafb;        /* slightly softer light background */
   --text-color: #222831;      /* darker text for better contrast */
-  --widget-bg: #ffffff;
+  --widget-bg: silver;
   --border-color: #d1d5db;    /* softer border */
   --shadow-color: rgba(0, 0, 0, 0.05); /* subtle shadow */
   --button-bg-default: #3b82f6; /* medium blue */
