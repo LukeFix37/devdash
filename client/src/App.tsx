@@ -20,6 +20,8 @@ const App: React.FC = () => {
     } else {
       setIsDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches);
     }
+    const savedTasks = localStorage.getItem("tasks");
+    if (savedTasks) setTasks(JSON.parse(savedTasks));
   }, []);
 
   useEffect(() => {
@@ -31,17 +33,24 @@ const App: React.FC = () => {
     localStorage.setItem("darkMode", isDarkMode.toString());
   }, [isDarkMode]);
 
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   const addTask = (title: string) => {
-    if (!title.trim()) return;
-    const newTask: Task = { id: Date.now(), title: title.trim() };
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    const newTask: Task = { id: Date.now(), title: trimmed };
     setTasks((prev) => [...prev, newTask]);
   };
 
   const editTask = (id: number, newTitle: string) => {
+    const trimmed = newTitle.trim();
+    if (!trimmed) return;
     setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, title: newTitle } : task))
+      prev.map((task) => (task.id === id ? { ...task, title: trimmed } : task))
     );
   };
 
@@ -50,48 +59,38 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div className="app-container">
       <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
 
-      <main className="flex justify-center gap-6 p-6">
-        {/* Left side: AddTask + WeatherWidget + SpotifyWidget */}
-        <div className="flex flex-col gap-6 w-full max-w-lg">
-          <div className="add-task-widget">
-            <AddTask addTask={addTask} />
+      <main className="main-grid">
+        <section className="sidebar">
+          <AddTask addTask={addTask} />
+          <div className="widgets">
+            <WeatherWidget />
+            <SpotifyWidget />
           </div>
+        </section>
 
-          <div className="flex gap-6">
-            <div className="flex-1 max-w-md bg-gray-200 dark:bg-gray-800 p-4 rounded-lg shadow-md">
-              <WeatherWidget />
+        <section className="content">
+          {!selectedDate ? (
+            <>
+              <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
+              <Calendar
+                events={[]}
+                onDateClick={(dateStr: string) => setSelectedDate(dateStr)}
+              />
+            </>
+          ) : (
+            <div className="selected-date-tasks">
+              <div className="header-row">
+                <h2>Tasks for {selectedDate}</h2>
+                <button onClick={() => setSelectedDate(null)}>Back</button>
+              </div>
+              <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
+              <AddTask addTask={addTask} />
             </div>
-            <div className="flex-1 max-w-md bg-gray-200 dark:bg-gray-800 p-4 rounded-lg shadow-md">
-              <SpotifyWidget />
-            </div>
-          </div>
-        </div>
-
-        {/* Right side: TaskList and Calendar */}
-        {!selectedDate ? (
-          <>
-            <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
-            <Calendar
-              events={[]}
-              onDateClick={(dateStr: string) => setSelectedDate(dateStr)}
-            />
-          </>
-        ) : (
-          <div className="w-full max-w-4xl p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">Tasks for {selectedDate}</h2>
-            <button
-              onClick={() => setSelectedDate(null)}
-              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Back to Calendar
-            </button>
-            <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
-            <AddTask addTask={addTask} />
-          </div>
-        )}
+          )}
+        </section>
       </main>
     </div>
   );

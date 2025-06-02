@@ -1,353 +1,128 @@
-/* ===== Reset & base ===== */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+/* App.css */
 
-html, body {
-  margin: 0;
-  height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  font-weight: 400;
-  line-height: 1.5;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: background-color 0.4s ease, color 0.4s ease;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ===== Theme variables ===== */
 :root {
-  --bg-color: #f9fafb;        /* slightly softer light background */
-  --text-color: #222831;      /* darker text for better contrast */
-  --widget-bg: silver;
-  --border-color: #d1d5db;    /* softer border */
-  --shadow-color: rgba(0, 0, 0, 0.05); /* subtle shadow */
-  --button-bg-default: #3b82f6; /* medium blue */
-  --button-hover-default: #2563eb;
+  --color-bg-light: #f7f9fc;
+  --color-bg-dark: #1e1e2f;
+  --color-text-light: #111827;
+  --color-text-dark: #e4e6eb;
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-border-light: #d1d5db;
+  --color-border-dark: #374151;
+  --color-shadow-light: rgba(0, 0, 0, 0.1);
+  --color-shadow-dark: rgba(0, 0, 0, 0.5);
+  --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+    "Open Sans", "Helvetica Neue", sans-serif;
 }
 
-.dark {
-  --bg-color: #1f2937;
-  --text-color: #e0e0e0;
-  --widget-bg: #2d3748;
-  --border-color: #4b5563;
-  --shadow-color: rgba(0, 0, 0, 0.3);
-  --button-bg-default: #2563eb;
-  --button-hover-default: #1e40af;
-}
-
-/* ===== Layout ===== */
-body, #root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-main {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  justify-content: left;
-  padding: 1.5rem;
-}
-
-/* ===== Widget (card) styling ===== */
-.widget {
-  background-color: var(--widget-bg);
-  border-radius: 0.375rem; /* 6px — less rounded */
-  box-shadow: 0 1px 4px var(--shadow-color); /* softer shadow */
-  padding: 1.5rem;
-  max-width: 480px;
-  width: 480px;
-  flex-shrink: 0;
-  flex-grow: 0;
-  transition: background-color 0.5s ease, box-shadow 0.5s ease;
-}
-
-
-/* ===== Weather widget styling ===== */
-.weather-widget {
-  background-color: var(--widget-bg);
-  border-radius: 0.375rem;  /* 6px rounding */
-  box-shadow: 0 1px 4px var(--shadow-color);
-  padding: 1.5rem;
-  max-width: 160px;
-  width: 160px;
-  margin-top: 1.5rem;
-  flex-shrink: 0;
-  flex-grow: 0;
-  transition: background-color 0.5s ease, box-shadow 0.5s ease;
-}
-
-.add-task-widget {
-  width: 480px !important;
-  max-width: 480px !important;
-  flex-shrink: 0 !important;
-  flex-grow: 0 !important;
-}
-
-/* ===== Buttons ===== */
-button {
-  font-family: inherit;
-  color: white;
-  background-color: var(--button-bg, var(--button-bg-default));
-  cursor: pointer;
-  border: none;
-  outline: none;
-  border-radius: 0.375rem; /* 6px - milder rounding */
-  padding: 0.5rem 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: none;
-  margin: 0 0.25rem;
-}
-
-.add-task-widget button {
-  margin-top: 1rem;
-}
-
-button:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
-  box-shadow: none;
-}
-
-button:disabled,
-button[disabled] {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-/* Specific button colors */
-.btn-edit {
-  background-color: #a16207; /* muted yellow/brown */
-}
-.btn-edit:hover {
-  background-color: #854d0e;
-}
-
-.btn-delete {
-  background-color: #b91c1c; /* slightly less bright red */
-}
-.btn-delete:hover {
-  background-color: #7f1212;
-}
-
-.btn-save {
-  background-color: #15803d; /* dark green */
-}
-.btn-save:hover {
-  background-color: #115a2b;
-}
-
-.btn-cancel {
-  background-color: #4b5563; /* gray-700 */
-}
-.btn-cancel:hover {
-  background-color: #374151; /* gray-800 */
-}
-
-.task-buttons {
-  display: flex !important;
-  gap: 0.5rem !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  margin-left: 8px;
-}
-
-/* ===== Inputs ===== */
-input[type="text"] {
-  font-size: 1rem;
-  border-radius: 0.375rem;
-  border: 1px solid var(--border-color);
-  padding: 0.4rem 0.75rem;
-  background-color: var(--widget-bg);
-  color: var(--text-color);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  width: 100%;
-  box-shadow: none;
-}
-
-input[type="text"]:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
-}
-
-/* ===== Task list item styling ===== */
-.task-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--bg-color);
-  padding: 0.75rem 1rem;
-  border-radius: 0.375rem; /* milder rounding */
-  margin-bottom: 0.5rem;
-  box-shadow: 0 1px 2px var(--shadow-color);
-  transition: background-color 0.3s ease;
-}
-
-.task-item:hover {
-  background-color: #f3f4f6; /* lighter gray */
-}
-
-.dark .task-item:hover {
-  background-color: #3b4252;
-}
-
-/* Task title when completed */
-.task-completed {
-  text-decoration: line-through;
-  color: #6b7280; /* softer gray */
-}
-
-header.header {
-  position: relative;
-  padding: 1rem 2rem;
-  box-shadow: 0 1px 5px var(--shadow-color);
-  display: flex;
-  align-items: center;
-  justify-content: left;
-  user-select: none;
-}
-
-/* Dark mode toggle button */
-.dark-mode-toggle {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  background: var(--button-bg-default);
-  border: none;
-  color: white;
-  padding: 0.4rem 1rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  font-size: 1.1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  transition: background-color 0.3s ease;
-  z-index: 1000;
-}
-
-.dark-mode-toggle:hover {
-  background-color: var(--button-hover-default);
-}
-
-/* Dark mode overrides for FullCalendar */
-
-.dark .calendar-widget {
-  background-color: #1f2937; /* Tailwind's gray-800 */
-  color: #d1d5db; /* Tailwind's gray-300 */
-}
-
-.dark .calendar-widget .fc {
-  color: #d1d5db;
-  background-color: #1f2937;
-}
-
-.dark .calendar-widget .fc-toolbar-title {
-  color: #f9fafb; /* lighter title */
-}
-
-.dark .calendar-widget .fc-daygrid-day-number {
-  color: #d1d5db;
-}
-
-.dark .calendar-widget .fc-daygrid-day {
-  border-color: #374151; /* Tailwind gray-700 */
-  background-color: #111827; /* Tailwind gray-900 */
-}
-
-.dark .calendar-widget .fc-daygrid-day:hover {
-  background-color: #374151; /* slightly lighter gray */
-}
-
-.dark .calendar-widget .fc-col-header-cell-cushion {
-  color: #9ca3af; /* Tailwind gray-400 */
-  background-color: #1f2937;
-}
-
-.dark .calendar-widget .fc-scrollgrid {
-  border-color: #374151;
-}
-
-/* ===== Spotify Widget Styling ===== */
-.spotify-widget {
-  background-color: var(--widget-bg);
-  border-radius: 0.375rem;
-  box-shadow: 0 1px 4px var(--shadow-color);
-  padding: 1.5rem;
-  max-width: 480px;
-  width: 480px;
-  flex-shrink: 0;
-  flex-grow: 0;
-  transition: background-color 0.5s ease, box-shadow 0.5s ease;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.spotify-widget img {
-  width: 64px;
-  height: 64px;
-  border-radius: 0.375rem;
-  object-fit: cover;
-}
-
-.spotify-widget .track-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.spotify-widget .track-info h4 {
+html, body, #root, .app-container {
+  height: 100%;
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-family: var(--font-family);
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.spotify-widget .track-info p {
-  margin: 0.25rem 0 0;
-  font-size: 0.875rem;
-  color: #6b7280;
+html.dark, html.dark body, html.dark #root, html.dark .app-container {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
 }
 
-.spotify-widget .controls {
+.app-container {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  padding: 0 1rem;
 }
 
-.spotify-widget .controls button {
-  background-color: var(--button-bg-default);
-  padding: 0.4rem 0.6rem;
+/* Main layout grid */
+.main-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+  padding: 1.5rem 2rem 2rem 2rem;
+  overflow-y: auto;
+}
+
+/* Sidebar styles */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  border-right: 1px solid var(--color-border-light);
+  padding-right: 1rem;
+}
+
+html.dark .sidebar {
+  border-color: var(--color-border-dark);
+}
+
+.widgets {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Content area */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Selected date tasks */
+.selected-date-tasks {
+  background: transparent;
+}
+
+.selected-date-tasks .header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.selected-date-tasks h2 {
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.selected-date-tasks button {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  font-weight: 600;
   border-radius: 0.375rem;
-  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.spotify-widget .controls button:hover {
-  background-color: var(--button-hover-default);
+.selected-date-tasks button:hover {
+  background-color: var(--color-primary-hover);
 }
 
+/* Scrollbar styles */
+.main-grid::-webkit-scrollbar {
+  width: 8px;
+}
 
+.main-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  main {
-    flex-direction: column;
-    padding: 1rem;
-  }
-  .widget {
-    max-width: 100%;
-    width: 100%;
-  }
+.main-grid::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 4px;
+}
+
+/* Button focus outline */
+button:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
