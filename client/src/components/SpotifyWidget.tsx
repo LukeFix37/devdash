@@ -12,6 +12,33 @@ const SCOPES = [
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 
+const PlayIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#121212" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="8,5 19,12 8,19" />
+  </svg>
+);
+
+const PauseIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#121212" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="5" width="4" height="14" />
+    <rect x="14" y="5" width="4" height="14" />
+  </svg>
+);
+
+const BackIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#121212" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="19,5 8,12 19,19" />
+    <rect x="5" y="5" width="2" height="14" />
+  </svg>
+);
+
+const SkipIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#121212" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="5,5 16,12 5,19" />
+    <rect x="17" y="5" width="2" height="14" />
+  </svg>
+);
+
 const SpotifyWidget: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -19,27 +46,23 @@ const SpotifyWidget: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<SpotifyTrack | null>(null);
 
-  // === PKCE & Auth Logic ===
-  // Generate a random code verifier string
+  // PKCE helpers
   const generateCodeVerifier = () => {
     const array = new Uint32Array(56 / 2);
     window.crypto.getRandomValues(array);
-    return Array.from(array, dec => ('0' + dec.toString(16)).slice(-2)).join('');
+    return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
   };
 
-  // Generate code challenge from verifier (SHA256 base64-url encoded)
   const generateCodeChallenge = async (verifier: string) => {
     const encoder = new TextEncoder();
     const data = encoder.encode(verifier);
     const digest = await window.crypto.subtle.digest('SHA-256', data);
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(digest)))
+    return btoa(String.fromCharCode(...new Uint8Array(digest)))
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=+$/, '');
-    return base64;
   };
 
-  // Redirect to Spotify auth with PKCE
   const redirectToAuth = async () => {
     const verifier = generateCodeVerifier();
     const challenge = await generateCodeChallenge(verifier);
@@ -57,7 +80,6 @@ const SpotifyWidget: React.FC = () => {
     window.location.href = `${AUTH_ENDPOINT}?${params.toString()}`;
   };
 
-  // Exchange authorization code for access token
   const exchangeToken = async (code: string) => {
     const verifier = localStorage.getItem('spotify_code_verifier');
     if (!verifier) return;
@@ -70,21 +92,15 @@ const SpotifyWidget: React.FC = () => {
       code_verifier: verifier,
     });
 
-    try {
-      const res = await fetch(TOKEN_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString(),
-      });
+    const res = await fetch(TOKEN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    });
 
-      const data = await res.json();
-      if (data.access_token) {
-        setToken(data.access_token);
-        localStorage.setItem('spotify_token', data.access_token);
-      }
-    } catch (err) {
-      console.error('Token exchange failed', err);
-    }
+    const data = await res.json();
+    setToken(data.access_token);
+    localStorage.setItem('spotify_token', data.access_token);
   };
 
   useEffect(() => {
@@ -96,12 +112,10 @@ const SpotifyWidget: React.FC = () => {
       setToken(savedToken);
     } else if (code) {
       exchangeToken(code);
-      // Clean URL (remove code param)
-      window.history.replaceState({}, document.title, window.location.pathname);
+      window.history.replaceState({}, document.title, '/');
     }
   }, []);
 
-  // === Spotify API functions ===
   const searchSpotify = async () => {
     if (!token || !query) return;
 
@@ -110,80 +124,58 @@ const SpotifyWidget: React.FC = () => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const data = await res.json();
-    setResults(data.tracks?.items || []);
+    setResults(data.tracks.items);
   };
 
   const playTrack = async (trackUri: string, track?: SpotifyTrack) => {
     if (!token) return;
-    try {
-      await fetch('https://api.spotify.com/v1/me/player/play', {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ uris: [trackUri] }),
-      });
-      setIsPlaying(true);
-      if (track) setCurrentTrack(track);
-    } catch (err) {
-      console.error('Play track error', err);
-    }
+    await fetch('https://api.spotify.com/v1/me/player/play', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ uris: [trackUri] }),
+    });
+    setIsPlaying(true);
+    if (track) setCurrentTrack(track);
   };
 
   const pauseTrack = async () => {
     if (!token) return;
-    try {
-      await fetch('https://api.spotify.com/v1/me/player/pause', {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setIsPlaying(false);
-    } catch (err) {
-      console.error('Pause track error', err);
-    }
+    await fetch('https://api.spotify.com/v1/me/player/pause', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setIsPlaying(false);
   };
 
   const nextTrack = async () => {
     if (!token) return;
-    try {
-      await fetch('https://api.spotify.com/v1/me/player/next', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // Optionally refresh current track info here
-    } catch (err) {
-      console.error('Next track error', err);
-    }
+    await fetch('https://api.spotify.com/v1/me/player/next', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
   };
 
   const previousTrack = async () => {
     if (!token) return;
-    try {
-      await fetch('https://api.spotify.com/v1/me/player/previous', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // Optionally refresh current track info here
-    } catch (err) {
-      console.error('Previous track error', err);
-    }
+    await fetch('https://api.spotify.com/v1/me/player/previous', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
   };
 
-  // Poll playback state every 5s to update UI
+  // Poll playback state every 5 seconds
   useEffect(() => {
     if (!token) return;
 
     const fetchPlaybackState = async () => {
-      try {
-        const res = await fetch('https://api.spotify.com/v1/me/player', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.status === 204) return; // nothing playing
-        if (res.ok) {
-          const data = await res.json();
-          setIsPlaying(data.is_playing);
-          setCurrentTrack(data.item);
-        }
-      } catch (err) {
-        console.error('Fetch playback state error', err);
+      const res = await fetch('https://api.spotify.com/v1/me/player', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.status === 204) return;
+      if (res.ok) {
+        const data = await res.json();
+        setIsPlaying(data.is_playing);
+        setCurrentTrack(data.item);
       }
     };
 
@@ -194,11 +186,42 @@ const SpotifyWidget: React.FC = () => {
 
   if (!token) {
     return (
-      <button onClick={redirectToAuth} className="btn btn-primary">
+      <button
+        onClick={redirectToAuth}
+        className="btn btn-primary"
+        style={{
+          padding: '12px 24px',
+          fontSize: 16,
+          backgroundColor: '#1db954',
+          border: 'none',
+          borderRadius: 6,
+          color: '#121212',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+        }}
+      >
         Login with Spotify
       </button>
     );
   }
+
+  const buttonStyle = {
+    backgroundColor: '#1db954',
+    border: 'none',
+    borderRadius: '50%',
+    width: 40,
+    height: 40,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    cursor: 'pointer',
+  };
+
+  const playPauseStyle = {
+    ...buttonStyle,
+    width: 50,
+    height: 50,
+  };
 
   return (
     <div
@@ -257,9 +280,6 @@ const SpotifyWidget: React.FC = () => {
         }}
       >
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {results.length === 0 && (
-            <li style={{ padding: 8, color: '#ccc', textAlign: 'center' }}>No results</li>
-          )}
           {results.map((track) => (
             <li
               key={track.id}
@@ -295,10 +315,13 @@ const SpotifyWidget: React.FC = () => {
                   color: '#121212',
                   fontWeight: 'bold',
                   cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
                 aria-label={`Play ${track.name}`}
               >
-                ▶️
+                <PlayIcon />
               </button>
             </li>
           ))}
@@ -316,89 +339,37 @@ const SpotifyWidget: React.FC = () => {
           alignItems: 'center',
         }}
       >
-        <button
-          onClick={previousTrack}
-          style={{
-            backgroundColor: '#1db954',
-            border: 'none',
-            borderRadius: '50%',
-            width: 40,
-            height: 40,
-            color: '#121212',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-          }}
-          aria-label="Previous Track"
-        >
-          ⏮️
+        <button aria-label="Previous Track" style={buttonStyle} onClick={previousTrack}>
+          <BackIcon />
         </button>
 
         {isPlaying ? (
-          <button
-            onClick={pauseTrack}
-            style={{
-              backgroundColor: '#1db954',
-              border: 'none',
-              borderRadius: '50%',
-              width: 50,
-              height: 50,
-              color: '#121212',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-            }}
-            aria-label="Pause"
-          >
-            ⏸️
+          <button aria-label="Pause" style={playPauseStyle} onClick={pauseTrack}>
+            <PauseIcon />
           </button>
         ) : (
           <button
-            onClick={() => currentTrack && playTrack(currentTrack.uri, currentTrack)}
-            style={{
-              backgroundColor: '#1db954',
-              border: 'none',
-              borderRadius: '50%',
-              width: 50,
-              height: 50,
-              color: '#121212',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-            }}
             aria-label="Play"
+            style={playPauseStyle}
+            onClick={() => currentTrack && playTrack(currentTrack.uri, currentTrack)}
             disabled={!currentTrack}
           >
-            ▶️
+            <PlayIcon />
           </button>
         )}
 
-        <button
-          onClick={nextTrack}
-          style={{
-            backgroundColor: '#1db954',
-            border: 'none',
-            borderRadius: '50%',
-            width: 40,
-            height: 40,
-            color: '#121212',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-          }}
-          aria-label="Next Track"
-        >
-          ⏭️
+        <button aria-label="Next Track" style={buttonStyle} onClick={nextTrack}>
+          <SkipIcon />
         </button>
       </div>
 
-      {/* Current Track Info */}
       {currentTrack && (
         <div
           style={{
-            marginTop: 12,
-            fontSize: 14,
-            color: '#ccc',
+            marginTop: 16,
             textAlign: 'center',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
+            color: 'white',
+            fontWeight: 'bold',
           }}
           title={`${currentTrack.name} — ${currentTrack.artists.map((a) => a.name).join(', ')}`}
         >
