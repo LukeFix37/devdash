@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import type { SpotifyTrack } from '../types'; // Adjust as needed
 
 const CLIENT_ID = '4c698708393549a2b41491c4e40ecf38';
 const REDIRECT_URI = 'https://devdash-two.vercel.app';
@@ -14,13 +15,13 @@ const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const SpotifyWidget: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SpotifyTrack[]>([]);
 
   // Generate PKCE Code Verifier
   const generateCodeVerifier = () => {
     const array = new Uint32Array(56 / 2);
     window.crypto.getRandomValues(array);
-    return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
+    return Array.from(array, dec => ('0' + dec.toString(16)).slice(-2)).join('');
   };
 
   // Generate Code Challenge (Base64 URL-encoded SHA256)
@@ -70,8 +71,15 @@ const SpotifyWidget: React.FC = () => {
     });
 
     const data = await res.json();
-    setToken(data.access_token);
-    localStorage.setItem('spotify_token', data.access_token);
+
+    if (res.ok && data.access_token) {
+      setToken(data.access_token);
+      localStorage.setItem('spotify_token', data.access_token);
+    } else {
+      console.error('Failed to exchange token:', data);
+      setToken(null);
+      localStorage.removeItem('spotify_token');
+    }
   };
 
   useEffect(() => {
@@ -94,16 +102,37 @@ const SpotifyWidget: React.FC = () => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
+    if (res.status === 401) {
+      // Token expired or unauthorized
+      console.warn('Spotify token expired or unauthorized. Logging out.');
+      setToken(null);
+      localStorage.removeItem('spotify_token');
+      setResults([]);
+      return;
+    }
+
     const data = await res.json();
+
+    if (!data.tracks || !data.tracks.items) {
+      console.error('No tracks found or API error:', data);
+      setResults([]);
+      return;
+    }
+
     setResults(data.tracks.items);
   };
 
   const playTrack = async (trackUri: string) => {
-    await fetch('https://api.spotify.com/v1/me/player/play', {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ uris: [trackUri] }),
-    });
+    if (!token) return;
+    try {
+      await fetch('https://api.spotify.com/v1/me/player/play', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ uris: [trackUri] }),
+      });
+    } catch (err) {
+      console.error('Failed to play track:', err);
+    }
   };
 
   if (!token) {
@@ -115,7 +144,7 @@ const SpotifyWidget: React.FC = () => {
   }
 
   return (
-    <div className= "spotify-widget" >
+    <div className="spotify-widget">
       <input
         type="text"
         placeholder="Search songs..."
@@ -126,7 +155,7 @@ const SpotifyWidget: React.FC = () => {
       <ul>
         {results.map((track) => (
           <li key={track.id}>
-            {track.name} — {track.artists.map((a: any) => a.name).join(', ')}
+            {track.name} — {track.artists.map((a) => a.name).join(', ')}
             <button onClick={() => playTrack(track.uri)}>▶️</button>
           </li>
         ))}

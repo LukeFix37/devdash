@@ -5,3 +5,13 @@ export type Task = {
   completed?: boolean;
 }
 
+interface SpotifyArtist {
+  name: string;
+}
+
+export interface SpotifyTrack {
+  id: string;
+  name: string;
+  uri: string;
+  artists: SpotifyArtist[];
+}
