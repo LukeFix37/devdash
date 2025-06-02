@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { SpotifyTrack } from '../types'; // Adjust as needed
+import type { SpotifyTrack } from '../types'; // Adjust the import path as needed
 
 const CLIENT_ID = '4c698708393549a2b41491c4e40ecf38';
 const REDIRECT_URI = 'https://devdash-two.vercel.app';
@@ -21,7 +21,7 @@ const SpotifyWidget: React.FC = () => {
   const generateCodeVerifier = () => {
     const array = new Uint32Array(56 / 2);
     window.crypto.getRandomValues(array);
-    return Array.from(array, dec => ('0' + dec.toString(16)).slice(-2)).join('');
+    return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
   };
 
   // Generate Code Challenge (Base64 URL-encoded SHA256)
@@ -71,15 +71,8 @@ const SpotifyWidget: React.FC = () => {
     });
 
     const data = await res.json();
-
-    if (res.ok && data.access_token) {
-      setToken(data.access_token);
-      localStorage.setItem('spotify_token', data.access_token);
-    } else {
-      console.error('Failed to exchange token:', data);
-      setToken(null);
-      localStorage.removeItem('spotify_token');
-    }
+    setToken(data.access_token);
+    localStorage.setItem('spotify_token', data.access_token);
   };
 
   useEffect(() => {
@@ -98,41 +91,23 @@ const SpotifyWidget: React.FC = () => {
   const searchSpotify = async () => {
     if (!token || !query) return;
 
-    const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (res.status === 401) {
-      // Token expired or unauthorized
-      console.warn('Spotify token expired or unauthorized. Logging out.');
-      setToken(null);
-      localStorage.removeItem('spotify_token');
-      setResults([]);
-      return;
-    }
+    const res = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
     const data = await res.json();
-
-    if (!data.tracks || !data.tracks.items) {
-      console.error('No tracks found or API error:', data);
-      setResults([]);
-      return;
-    }
-
     setResults(data.tracks.items);
   };
 
   const playTrack = async (trackUri: string) => {
-    if (!token) return;
-    try {
-      await fetch('https://api.spotify.com/v1/me/player/play', {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ uris: [trackUri] }),
-      });
-    } catch (err) {
-      console.error('Failed to play track:', err);
-    }
+    await fetch('https://api.spotify.com/v1/me/player/play', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ uris: [trackUri] }),
+    });
   };
 
   if (!token) {
@@ -144,22 +119,103 @@ const SpotifyWidget: React.FC = () => {
   }
 
   return (
-    <div className="spotify-widget">
+    <div
+      className="spotify-widget"
+      style={{
+        maxWidth: 480,
+        margin: '0 auto',
+        padding: 16,
+        border: '1px solid #ddd',
+        borderRadius: 8,
+        backgroundColor: '#1db954',
+        color: 'white',
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
       <input
         type="text"
         placeholder="Search songs..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        style={{
+          width: '100%',
+          padding: '8px 12px',
+          borderRadius: 4,
+          border: 'none',
+          marginBottom: 12,
+          fontSize: 16,
+        }}
       />
-      <button onClick={searchSpotify}>Search</button>
-      <ul>
-        {results.map((track) => (
-          <li key={track.id}>
-            {track.name} — {track.artists.map((a) => a.name).join(', ')}
-            <button onClick={() => playTrack(track.uri)}>▶️</button>
-          </li>
-        ))}
-      </ul>
+      <button
+        onClick={searchSpotify}
+        style={{
+          width: '100%',
+          padding: '10px 0',
+          borderRadius: 4,
+          border: 'none',
+          backgroundColor: '#191414',
+          color: '#1db954',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          marginBottom: 16,
+        }}
+      >
+        Search
+      </button>
+      <div
+        style={{
+          maxHeight: 300,
+          overflowY: 'auto',
+          backgroundColor: '#121212',
+          borderRadius: 6,
+          padding: 8,
+          boxShadow: '0 0 8px rgba(0,0,0,0.8)',
+        }}
+      >
+        <ul
+          style={{
+            listStyle: 'none',
+            padding: 0,
+            margin: 0,
+          }}
+        >
+          {results.map((track) => (
+            <li
+              key={track.id}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '8px 12px',
+                borderBottom: '1px solid #333',
+                cursor: 'default',
+              }}
+              title={`${track.name} — ${track.artists.map((a) => a.name).join(', ')}`}
+            >
+              <span style={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {track.name} — {track.artists.map((a) => a.name).join(', ')}
+              </span>
+              <button
+                onClick={() => playTrack(track.uri)}
+                style={{
+                  marginLeft: 12,
+                  backgroundColor: '#1db954',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: 30,
+                  height: 30,
+                  color: '#121212',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                }}
+                aria-label={`Play ${track.name}`}
+              >
+                ▶️
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
