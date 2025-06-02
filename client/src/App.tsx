@@ -4,7 +4,7 @@ import AddTask from "./components/AddTask";
 import TaskList from "./components/TaskList";
 import Calendar from "./components/Calendar";
 import WeatherWidget from "./components/WeatherWidget";
-import SpotifyEmbed from "./components/SpotifyWidget";
+import SpotifyWidget from "./components/SpotifyWidget";
 import type { Task } from "./types";
 import "./App.css";
 
@@ -92,7 +92,7 @@ const App: React.FC = () => {
 
           <WeatherWidget />
 
-          <SpotifyEmbed />
+          <SpotifyWidget />
 
         </div>
 
