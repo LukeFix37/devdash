@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 const CLIENT_ID = '4c698708393549a2b41491c4e40ecf38';
-const REDIRECT_URI = 'https://devdash-two.vercel.app/';
+const REDIRECT_URI = 'https://devdash-2l0ca3xdh-lukefix37s-projects.vercel.app/';
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const RESPONSE_TYPE = 'token';
 const SCOPES = ['user-read-currently-playing', 'user-read-playback-state'];
