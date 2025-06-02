@@ -1,58 +1,89 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-const CLIENT_ID = "4c698708393549a2b41491c4e40ecf38";
-const REDIRECT_URI = "http://localhost:5173/callback"; // Adjust to your redirect URI
-const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
-const RESPONSE_TYPE = "token";
+const CLIENT_ID = '4c698708393549a2b41491c4e40ecf38';
+const REDIRECT_URI = 'https://devdash-two.vercel.app/callback';
+const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
+const RESPONSE_TYPE = 'token';
+const SCOPES = ['user-read-currently-playing', 'user-read-playback-state'];
 
 const SpotifyWidget: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
+  const [nowPlaying, setNowPlaying] = useState<any>(null);
 
   useEffect(() => {
-    // On mount, check for token in URL hash (after redirect)
+    // Parse token from URL hash
     const hash = window.location.hash;
-    let tokenFromUrl = null;
-    if (hash) {
-      const params = new URLSearchParams(hash.replace("#", ""));
-      tokenFromUrl = params.get("access_token");
-      if (tokenFromUrl) {
-        setToken(tokenFromUrl);
-        window.history.pushState({}, document.title, "/"); // Clean URL
+    if (!token && hash) {
+      const params = new URLSearchParams(hash.substring(1));
+      const _token = params.get('access_token');
+      if (_token) {
+        setToken(_token);
+        window.history.replaceState(null, '', window.location.pathname); // clean URL
+        localStorage.setItem('spotify_token', _token);
       }
+    } else {
+      const savedToken = localStorage.getItem('spotify_token');
+      if (savedToken) setToken(savedToken);
     }
-  }, []);
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchNowPlaying = async () => {
+      try {
+        const response = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.status === 204 || response.status > 400) {
+          setNowPlaying(null);
+          return;
+        }
+        const data = await response.json();
+        setNowPlaying(data);
+      } catch {
+        setNowPlaying(null);
+      }
+    };
+
+    fetchNowPlaying();
+
+    const interval = setInterval(fetchNowPlaying, 5000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   const logout = () => {
     setToken(null);
-    window.localStorage.removeItem("spotifyToken");
+    setNowPlaying(null);
+    localStorage.removeItem('spotify_token');
   };
 
-  const loginUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
-    REDIRECT_URI
-  )}&response_type=${RESPONSE_TYPE}&scope=streaming%20user-read-email%20user-read-private`;
+  if (!token) {
+    return (
+      <a
+        href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+          REDIRECT_URI
+        )}&scope=${SCOPES.join('%20')}&response_type=${RESPONSE_TYPE}&show_dialog=true`}
+        className="btn btn-primary"
+      >
+        Login with Spotify
+      </a>
+    );
+  }
 
   return (
-    <div className="spotify-widget p-4 bg-gray-800 text-white rounded shadow-md w-full max-w-md">
-      {!token ? (
-        <a
-          href={loginUrl}
-          className="block px-6 py-3 bg-green-600 hover:bg-green-700 rounded text-center font-semibold"
-        >
-          Login with Spotify
-        </a>
+    <div className="spotify-widget p-4 bg-gray-800 text-white rounded">
+      {nowPlaying ? (
+        <>
+          <h3>Now Playing:</h3>
+          <p>{nowPlaying.item.name} — {nowPlaying.item.artists.map((a: any) => a.name).join(', ')}</p>
+          <img src={nowPlaying.item.album.images[0].url} alt="Album Art" style={{ width: 150 }} />
+          <button onClick={logout} className="mt-2 btn btn-secondary">Logout</button>
+        </>
       ) : (
         <>
-          <p className="mb-4">Logged in! Token: {token.substring(0, 20)}...</p>
-          <button
-            onClick={logout}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded"
-          >
-            Logout
-          </button>
-          {/* Here you can add Spotify Web Playback SDK integration */}
-          <p className="mt-4 italic text-sm">
-            Next: integrate Spotify Web Playback SDK to play music here.
-          </p>
+          <p>No song currently playing.</p>
+          <button onClick={logout} className="btn btn-secondary">Logout</button>
         </>
       )}
     </div>
