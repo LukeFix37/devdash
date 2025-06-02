@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const CLIENT_ID = '4c698708393549a2b41491c4e40ecf38';
-const REDIRECT_URI = 'https://devdash-two.vercel.app/'; // make sure this EXACTLY matches your Spotify app redirect URI
+const REDIRECT_URI = 'https://devdash-two.vercel.app'; // make sure this EXACTLY matches your Spotify app redirect URI
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const RESPONSE_TYPE = 'token';
 const SCOPES = [
