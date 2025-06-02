@@ -4,7 +4,9 @@ import AddTask from "./components/AddTask";
 import TaskList from "./components/TaskList";
 import Calendar from "./components/Calendar";
 import WeatherWidget from "./components/WeatherWidget";
+import SpotifyWidget from "./components/SpotifyWidget";
 import "./App.css";
+
 
 interface Task {
 
@@ -95,6 +97,8 @@ const App: React.FC = () => {
           </div>
 
           <WeatherWidget />
+
+          <SpotifyWidget />
 
         </div>
 
