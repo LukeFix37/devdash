@@ -213,3 +213,7 @@ html.dark .task-item:hover {
   display: flex;
   gap: 0.5rem;
 }
+
+.widgets {
+  margin-top: 10px;
+}
