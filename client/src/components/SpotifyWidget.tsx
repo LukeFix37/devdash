@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 const CLIENT_ID = 'YOUR_CLIENT_ID';
 const REDIRECT_URI = 'http://localhost:3000'; // change to your app url
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
-const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
+
 const SCOPES = [
   'user-read-playback-state',
   'user-modify-playback-state',
