@@ -92,7 +92,7 @@ const App: React.FC = () => {
 
           <WeatherWidget />
 
-          <SpotifyEmbed uri= "3n3Ppam7vgaVa1iaRUc9Lp" />
+          <SpotifyEmbed />
 
         </div>
 
