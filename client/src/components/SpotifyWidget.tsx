@@ -115,7 +115,7 @@ const SpotifyWidget: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className= "spotify-widget" >
       <input
         type="text"
         placeholder="Search songs..."
