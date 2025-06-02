@@ -1,42 +1,54 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
-const CLIENT_ID = "4c698708393549a2b41491c4e40ecf38";
-const REDIRECT_URI = "https://devdash-two.vercel.app";
-const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
-const RESPONSE_TYPE = "token";
+const CLIENT_ID = '4c698708393549a2b41491c4e40ecf38';
+const REDIRECT_URI = 'https://devdash-two.vercel.app/'; // make sure this EXACTLY matches your Spotify app redirect URI
+const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
+const RESPONSE_TYPE = 'token';
 const SCOPES = [
-  "user-read-playback-state",
-  "user-modify-playback-state",
-  "user-read-private",
-  "streaming",
+  'user-read-playback-state',
+  'user-modify-playback-state',
+  'user-read-private',
+  'user-library-read',
+  'streaming',
 ];
 
 const SpotifyWidget: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const hash = window.location.hash;
+    console.log('URL hash:', hash);
     if (!token && hash) {
       const params = new URLSearchParams(hash.substring(1));
-      const _token = params.get("access_token");
+      const _token = params.get('access_token');
+      console.log('Parsed token:', _token);
       if (_token) {
         setToken(_token);
-        window.history.replaceState(null, "", window.location.pathname);
-        localStorage.setItem("spotify_token", _token);
+        localStorage.setItem('spotify_token', _token);
+        window.history.replaceState(null, '', window.location.pathname);
       }
     } else {
-      const savedToken = localStorage.getItem("spotify_token");
+      const savedToken = localStorage.getItem('spotify_token');
+      console.log('Saved token from storage:', savedToken);
       if (savedToken) setToken(savedToken);
     }
   }, [token]);
 
   const searchSpotify = async () => {
-    if (!token || !query) return;
+    if (!token) {
+      setError('You must be logged in to search.');
+      return;
+    }
+    if (!query.trim()) {
+      setError('Please enter a search term.');
+      return;
+    }
     setError(null);
     try {
+      console.log(`Searching Spotify for: ${query}`);
       const res = await fetch(
         `https://api.spotify.com/v1/search?q=${encodeURIComponent(
           query
@@ -45,43 +57,50 @@ const SpotifyWidget: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      if (!res.ok) throw new Error("Spotify search failed");
+      console.log('Search response status:', res.status);
+      if (!res.ok) throw new Error('Spotify search failed');
       const data = await res.json();
+      console.log('Search results:', data);
       setResults(data.tracks.items);
-    } catch {
-      setError("Failed to search. Try again.");
+    } catch (e) {
+      console.error(e);
+      setError('Failed to search. Try again.');
     }
   };
 
   const playTrack = async (trackUri: string) => {
-    if (!token) return;
+    if (!token) {
+      setError('You must be logged in to play music.');
+      return;
+    }
     setError(null);
     try {
-      const res = await fetch("https://api.spotify.com/v1/me/player/play", {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch('https://api.spotify.com/v1/me/player/play', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ uris: [trackUri] }),
       });
       if (res.status === 204) {
-        // success
-      } else if (res.status === 404) {
-        setError(
-          "No active Spotify device found. Open Spotify on a device and try again."
-        );
+        console.log('Playback started');
       } else {
-        setError("Failed to start playback");
+        console.error('Playback failed:', res.status, await res.text());
+        setError('Failed to play track. Make sure you have an active Spotify device.');
       }
-    } catch {
-      setError("Failed to start playback");
+    } catch (e) {
+      console.error(e);
+      setError('Failed to play track.');
     }
   };
 
   const logout = () => {
     setToken(null);
     setResults([]);
-    setQuery("");
-    localStorage.removeItem("spotify_token");
-    window.location.reload();
+    setQuery('');
+    setError(null);
+    localStorage.removeItem('spotify_token');
   };
 
   if (!token) {
@@ -89,7 +108,7 @@ const SpotifyWidget: React.FC = () => {
       <a
         href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
           REDIRECT_URI
-        )}&scope=${SCOPES.join("%20")}&response_type=${RESPONSE_TYPE}&show_dialog=true`}
+        )}&scope=${SCOPES.join('%20')}&response_type=${RESPONSE_TYPE}&show_dialog=true`}
         className="btn btn-primary"
       >
         Login with Spotify
@@ -98,7 +117,7 @@ const SpotifyWidget: React.FC = () => {
   }
 
   return (
-    <div>
+    <div style={{ maxWidth: 400, margin: '0 auto' }}>
       <button onClick={logout} style={{ marginBottom: 10 }}>
         Logout
       </button>
@@ -107,27 +126,15 @@ const SpotifyWidget: React.FC = () => {
         placeholder="Search songs..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        style={{ marginRight: 10 }}
+        style={{ width: '70%', marginRight: 5 }}
       />
       <button onClick={searchSpotify}>Search</button>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <ul>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
         {results.map((track) => (
           <li key={track.id} style={{ marginBottom: 8 }}>
-            <img
-              src={track.album.images[2]?.url}
-              alt={track.name}
-              width={50}
-              height={50}
-              style={{ verticalAlign: "middle", marginRight: 10 }}
-            />
-            {track.name} — {track.artists.map((a: any) => a.name).join(", ")}{" "}
-            <button
-              onClick={() => playTrack(track.uri)}
-              style={{ marginLeft: 10 }}
-            >
+            {track.name} — {track.artists[0].name}{' '}
+            <button onClick={() => playTrack(track.uri)} title="Play Track">
               ▶️
             </button>
           </li>
