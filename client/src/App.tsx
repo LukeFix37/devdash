@@ -5,15 +5,9 @@ import TaskList from "./components/TaskList";
 import Calendar from "./components/Calendar";
 import WeatherWidget from "./components/WeatherWidget";
 import SpotifyWidget from "./components/SpotifyWidget";
+import type { Task } from "./types";
 import "./App.css";
 
-
-interface Task {
-
-  id: number;
-  title: string;
-
-}
 
 const App: React.FC = () => {
 
@@ -113,7 +107,7 @@ const App: React.FC = () => {
             <Calendar
 
               events={[]}
-              onDateClick={(dateStr) => setSelectedDate(dateStr)}
+              onDateClick={(dateStr: string) => setSelectedDate(dateStr)}
 
             />
           </>

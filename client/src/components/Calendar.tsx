@@ -11,6 +11,7 @@ interface Event {
 
 interface CalendarProps {
   events: Event[];
+  onDateClick?: (date: string) => void;
 }
 
 const Calendar: React.FC<CalendarProps> = ({ events }) => {
