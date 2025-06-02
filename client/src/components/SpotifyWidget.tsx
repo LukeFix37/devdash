@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const CLIENT_ID = 'YOUR_CLIENT_ID';
-const REDIRECT_URI = 'http://localhost:3000'; // change to your app url
+const CLIENT_ID = '4c698708393549a2b41491c4e40ecf38';
+const REDIRECT_URI = 'https://devdash-two.vercel.app'; // make sure this EXACTLY matches your Spotify app redirect URI
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
-
+const RESPONSE_TYPE = 'token';
 const SCOPES = [
   'user-read-playback-state',
   'user-modify-playback-state',
@@ -12,100 +12,131 @@ const SCOPES = [
   'streaming',
 ];
 
-function base64UrlEncode(str: ArrayBuffer) {
-  return btoa(String.fromCharCode(...new Uint8Array(str)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}
-
-async function sha256(plain: string) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(plain);
-  return await crypto.subtle.digest('SHA-256', data);
-}
-
-function generateCodeVerifier() {
-  const array = new Uint32Array(56/2);
-  window.crypto.getRandomValues(array);
-  return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
-}
-
 const SpotifyWidget: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // After redirect back from Spotify, URL has ?code=... 
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const storedVerifier = localStorage.getItem('pkce_code_verifier');
-
-    if (code && storedVerifier && !token) {
-      // Send to backend for token exchange
-      fetch('/api/spotify/token', { // YOUR backend endpoint
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, code_verifier: storedVerifier, redirect_uri: REDIRECT_URI }),
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.access_token) {
-            setToken(data.access_token);
-            localStorage.setItem('spotify_access_token', data.access_token);
-            window.history.replaceState(null, '', window.location.pathname); // clean url
-          }
-        });
+    const hash = window.location.hash;
+    console.log('URL hash:', hash);
+    if (!token && hash) {
+      const params = new URLSearchParams(hash.substring(1));
+      const _token = params.get('access_token');
+      console.log('Parsed token:', _token);
+      if (_token) {
+        setToken(_token);
+        localStorage.setItem('spotify_token', _token);
+        window.history.replaceState(null, '', window.location.pathname);
+      }
     } else {
-      const savedToken = localStorage.getItem('spotify_access_token');
+      const savedToken = localStorage.getItem('spotify_token');
+      console.log('Saved token from storage:', savedToken);
       if (savedToken) setToken(savedToken);
     }
   }, [token]);
 
-  const login = async () => {
-    const codeVerifier = generateCodeVerifier();
-    const codeChallenge = base64UrlEncode(await sha256(codeVerifier));
-
-    localStorage.setItem('pkce_code_verifier', codeVerifier);
-
-    const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(
-      REDIRECT_URI
-    )}&scope=${encodeURIComponent(SCOPES.join(' '))}&code_challenge_method=S256&code_challenge=${codeChallenge}`;
-
-    window.location.href = authUrl;
-  };
-
   const searchSpotify = async () => {
-    if (!token || !query) return;
-    const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setResults(data.tracks.items);
+    if (!token) {
+      setError('You must be logged in to search.');
+      return;
+    }
+    if (!query.trim()) {
+      setError('Please enter a search term.');
+      return;
+    }
+    setError(null);
+    try {
+      console.log(`Searching Spotify for: ${query}`);
+      const res = await fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(
+          query
+        )}&type=track&limit=10`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      console.log('Search response status:', res.status);
+      if (!res.ok) throw new Error('Spotify search failed');
+      const data = await res.json();
+      console.log('Search results:', data);
+      setResults(data.tracks.items);
+    } catch (e) {
+      console.error(e);
+      setError('Failed to search. Try again.');
+    }
   };
 
   const playTrack = async (trackUri: string) => {
-    await fetch('https://api.spotify.com/v1/me/player/play', {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ uris: [trackUri] }),
-    });
+    if (!token) {
+      setError('You must be logged in to play music.');
+      return;
+    }
+    setError(null);
+    try {
+      const res = await fetch('https://api.spotify.com/v1/me/player/play', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ uris: [trackUri] }),
+      });
+      if (res.status === 204) {
+        console.log('Playback started');
+      } else {
+        console.error('Playback failed:', res.status, await res.text());
+        setError('Failed to play track. Make sure you have an active Spotify device.');
+      }
+    } catch (e) {
+      console.error(e);
+      setError('Failed to play track.');
+    }
+  };
+
+  const logout = () => {
+    setToken(null);
+    setResults([]);
+    setQuery('');
+    setError(null);
+    localStorage.removeItem('spotify_token');
   };
 
   if (!token) {
-    return <button onClick={login}>Login with Spotify</button>;
+    return (
+      <a
+        href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+          REDIRECT_URI
+        )}&scope=${SCOPES.join('%20')}&response_type=${RESPONSE_TYPE}&show_dialog=true`}
+        className="btn btn-primary"
+      >
+        Login with Spotify
+      </a>
+    );
   }
 
   return (
-    <div>
-      <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search songs..." />
+    <div style={{ maxWidth: 400, margin: '0 auto' }}>
+      <button onClick={logout} style={{ marginBottom: 10 }}>
+        Logout
+      </button>
+      <input
+        type="text"
+        placeholder="Search songs..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        style={{ width: '70%', marginRight: 5 }}
+      />
       <button onClick={searchSpotify}>Search</button>
-      <ul>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
         {results.map((track) => (
-          <li key={track.id}>
-            {track.name} — {track.artists[0].name}
-            <button onClick={() => playTrack(track.uri)}>▶️</button>
+          <li key={track.id} style={{ marginBottom: 8 }}>
+            {track.name} — {track.artists[0].name}{' '}
+            <button onClick={() => playTrack(track.uri)} title="Play Track">
+              ▶️
+            </button>
           </li>
         ))}
       </ul>
