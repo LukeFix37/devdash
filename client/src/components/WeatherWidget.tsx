@@ -41,7 +41,7 @@ const WeatherWidget: React.FC = () => {
   }
 
   return (
-    <div className="weather-widget">
+    <div className="widget-card">
       <h3 className="text-lg font-semibold mb-2">Current Weather</h3>
       <p>🌡️ Temperature: {weather.temperature}°F</p>
       <p>💨 Windspeed: {weather.windspeed} km/h</p>
