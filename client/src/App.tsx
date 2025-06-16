@@ -5,6 +5,7 @@ import TaskList from "./components/TaskList";
 import Calendar from "./components/Calendar";
 import WeatherWidget from "./components/WeatherWidget";
 import SpotifyWidget from "./components/SpotifyWidget";
+import LeetCodeWidget from "./components/LeetCodeWidget";
 import type { Task } from "./types";
 import "./App.css";
 
@@ -68,6 +69,7 @@ const App: React.FC = () => {
           <div className="widgets">
             <WeatherWidget />
             <SpotifyWidget />
+            <LeetCodeWidget />
           </div>
         </section>
 
