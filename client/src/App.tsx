@@ -7,7 +7,9 @@ import WeatherWidget from "./components/WeatherWidget";
 import SpotifyWidget from "./components/SpotifyWidget";
 import LeetCodeWidget from "./components/LeetCodeWidget";
 import type { Task } from "./types";
-import type { EventInput } from "@fullcalendar/core";
+import type { EventInput, EventApi } from "@fullcalendar/core";
+import type { DropResult } from "react-beautiful-dnd";
+import { DragDropContext} from "react-beautiful-dnd";
 import "./App.css";
 
 const App: React.FC = () => {
@@ -60,15 +62,23 @@ const App: React.FC = () => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
-  const handleEventDrop = (id: string, newStart: string) => {
+  // Handle dropping tasks inside the TaskList (reordering)
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    if (result.source.droppableId === "taskList" && result.destination.droppableId === "taskList") {
+      const newTasks = Array.from(tasks);
+      const [removed] = newTasks.splice(result.source.index, 1);
+      newTasks.splice(result.destination.index, 0, removed);
+      setTasks(newTasks);
+    }
+  };
+
+  // Handle drop onto calendar from FullCalendar external drag
+  const handleEventReceive = (taskId: number, date: Date) => {
     setTasks((prev) =>
       prev.map((task) =>
-        task.id === Number(id)
-          ? {
-              ...task,
-              start: newStart,
-            }
-          : task
+        task.id === taskId ? { ...task, start: date.toISOString() } : task
       )
     );
   };
@@ -82,42 +92,40 @@ const App: React.FC = () => {
     }));
 
   return (
-    <div className="app-container">
-      <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+    <DragDropContext onDragEnd={onDragEnd}>
+      <div className="app-container">
+        <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
 
-      <main className="main-grid">
-        <section className="sidebar">
-          <AddTask addTask={addTask} />
-          <div className="widgets">
-            <WeatherWidget />
-            <SpotifyWidget />
-            <LeetCodeWidget />
-          </div>
-        </section>
-
-        <section className="content">
-          {!selectedDate ? (
-            <>
-              <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
-              <Calendar
-                events={taskEvents}
-                onDateClick={(dateStr: string) => setSelectedDate(dateStr)}
-                onEventDrop={handleEventDrop}
-              />
-            </>
-          ) : (
-            <div className="selected-date-tasks">
-              <div className="header-row">
-                <h2>Tasks for {selectedDate}</h2>
-                <button onClick={() => setSelectedDate(null)}>Back</button>
-              </div>
-              <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
-              <AddTask addTask={addTask} />
+        <main className="main-grid">
+          <section className="sidebar">
+            <AddTask addTask={addTask} />
+            <div className="widgets">
+              <WeatherWidget />
+              <SpotifyWidget />
+              <LeetCodeWidget />
             </div>
-          )}
-        </section>
-      </main>
-    </div>
+          </section>
+
+          <section className="content">
+            {!selectedDate ? (
+              <>
+                <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
+                <Calendar events={taskEvents} onEventReceive={handleEventReceive} />
+              </>
+            ) : (
+              <div className="selected-date-tasks">
+                <div className="header-row">
+                  <h2>Tasks for {selectedDate}</h2>
+                  <button onClick={() => setSelectedDate(null)}>Back</button>
+                </div>
+                <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
+                <AddTask addTask={addTask} />
+              </div>
+            )}
+          </section>
+        </main>
+      </div>
+    </DragDropContext>
   );
 };
 

@@ -6,42 +6,49 @@ import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
 
 interface CalendarProps {
   events: any[];
-  onEventReceive: (event: any) => void;
-  onDateClick: (dateStr: string) => void;
+  onEventReceive: (taskId: number, date: Date) => void;
 }
 
-const Calendar: React.FC<CalendarProps> = ({ events, onEventReceive, onDateClick }) => {
-  const externalTasksRef = useRef<HTMLDivElement>(null);
+const Calendar: React.FC<CalendarProps> = ({ events, onEventReceive }) => {
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (externalTasksRef.current) {
-      new Draggable(externalTasksRef.current, {
-        itemSelector: ".external-task",
-        eventData: (eventEl) => {
-          const title = eventEl.getAttribute("data-title") || "Untitled Task";
-          return { title };
+    if (calendarRef.current) {
+      // Setup external drag from TaskList (FullCalendar's native Draggable)
+      new Draggable(calendarRef.current, {
+        itemSelector: ".fc-external-task",
+        eventData: (el) => {
+          const title = el.getAttribute("data-task-title") || "Untitled Task";
+          const id = el.getAttribute("data-task-id") || "";
+          return {
+            title,
+            extendedProps: { taskId: parseInt(id, 10) },
+          };
         },
       });
     }
   }, []);
 
   return (
-    <div>
-      {/* This div is for draggable external tasks container */}
-      <div ref={externalTasksRef} style={{ display: "none" }}>
-        {/* Your draggable task items must have class "external-task" and data-title */}
-      </div>
-
+    <>
+      {/* This wrapper div is needed for FullCalendar's Draggable init */}
+      <div ref={calendarRef} id="external-tasks-drag-container" style={{ display: "none" }} />
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
         editable={true}
-        droppable={true}
+        droppable={true} // enable dropping external elements
         events={events}
-        eventReceive={(info) => onEventReceive(info.event)}
-        dateClick={(info) => onDateClick(info.dateStr)}
+        eventReceive={(info) => {
+          const taskId = info.event.extendedProps.taskId;
+          const startDate = info.event.start;
+          if (taskId && startDate) {
+            onEventReceive(taskId, startDate);
+          }
+          info.event.remove(); // Remove the temp event after drop
+        }}
       />
-    </div>
+    </>
   );
 };
 
