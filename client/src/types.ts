@@ -3,6 +3,8 @@ export type Task = {
   id: number;
   title: string;
   completed?: boolean;
+  date?: string;
+  start?: string;
 }
 
 interface SpotifyArtist {

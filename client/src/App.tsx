@@ -7,6 +7,7 @@ import WeatherWidget from "./components/WeatherWidget";
 import SpotifyWidget from "./components/SpotifyWidget";
 import LeetCodeWidget from "./components/LeetCodeWidget";
 import type { Task } from "./types";
+import type { EventInput } from "@fullcalendar/core";
 import "./App.css";
 
 const App: React.FC = () => {
@@ -59,6 +60,14 @@ const App: React.FC = () => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
+  const taskEvents: EventInput[] = tasks
+  .filter((task) => task.start) // only add to calendar if it has a start time
+  .map((task) => ({
+    id: String(task.id),
+    title: task.title,
+    start: task.start,
+  }));
+
   return (
     <div className="app-container">
       <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
@@ -78,7 +87,7 @@ const App: React.FC = () => {
             <>
               <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
               <Calendar
-                events={[]}
+                events={taskEvents}
                 onDateClick={(dateStr: string) => setSelectedDate(dateStr)}
               />
             </>

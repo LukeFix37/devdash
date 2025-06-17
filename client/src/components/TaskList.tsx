@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { Task } from "../types"; 
+import type { Task } from "../types";
 
 interface TaskListProps {
   tasks: Task[];
@@ -46,6 +46,11 @@ const TaskList: React.FC<TaskListProps> = ({
         {tasks.map((task) => (
           <li
             key={task.id}
+            draggable
+            data-task-title={task.title}
+            onDragStart={(e) => {
+              e.dataTransfer.setData("text/plain", task.title);
+            }}
             className="task-item flex items-center justify-between mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md shadow-sm"
           >
             <div className="flex-grow min-w-0 mr-4">

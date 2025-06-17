@@ -3,14 +3,10 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-
-interface Event {
-  title: string;
-  date: string;
-}
+import type { EventInput } from "@fullcalendar/core";
 
 interface CalendarProps {
-  events: Event[];
+  events: EventInput[];
   onDateClick?: (date: string) => void;
 }
 
@@ -30,6 +26,8 @@ const Calendar: React.FC<CalendarProps> = ({ events }) => {
       calendarApi.changeView("dayGridMonth");
     }
   };
+  
+  
 
   return (
     <div className="w-full max-w-4xl p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
