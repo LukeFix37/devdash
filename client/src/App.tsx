@@ -7,7 +7,7 @@ import WeatherWidget from "./components/WeatherWidget";
 import SpotifyWidget from "./components/SpotifyWidget";
 import LeetCodeWidget from "./components/LeetCodeWidget";
 import type { Task } from "./types";
-import type { EventInput, EventApi } from "@fullcalendar/core";
+import type { EventInput} from "@fullcalendar/core";
 import type { DropResult } from "react-beautiful-dnd";
 import { DragDropContext} from "react-beautiful-dnd";
 import "./App.css";

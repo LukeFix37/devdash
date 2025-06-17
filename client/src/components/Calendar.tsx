@@ -3,9 +3,10 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
+import type { EventInput } from "@fullcalendar/core/index.js";
 
 interface CalendarProps {
-  events: any[];
+  events: EventInput[];
   onEventReceive: (taskId: number, date: Date) => void;
 }
 
