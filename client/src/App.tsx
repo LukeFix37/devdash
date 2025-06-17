@@ -60,13 +60,26 @@ const App: React.FC = () => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
+  const handleEventDrop = (id: string, newStart: string) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === Number(id)
+          ? {
+              ...task,
+              start: newStart,
+            }
+          : task
+      )
+    );
+  };
+
   const taskEvents: EventInput[] = tasks
-  .filter((task) => task.start) // only add to calendar if it has a start time
-  .map((task) => ({
-    id: String(task.id),
-    title: task.title,
-    start: task.start,
-  }));
+    .filter((task) => task.start)
+    .map((task) => ({
+      id: String(task.id),
+      title: task.title,
+      start: task.start,
+    }));
 
   return (
     <div className="app-container">
@@ -89,6 +102,7 @@ const App: React.FC = () => {
               <Calendar
                 events={taskEvents}
                 onDateClick={(dateStr: string) => setSelectedDate(dateStr)}
+                onEventDrop={handleEventDrop}
               />
             </>
           ) : (

@@ -1,56 +1,45 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import type { EventInput } from "@fullcalendar/core";
+import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
 
 interface CalendarProps {
-  events: EventInput[];
-  onDateClick?: (date: string) => void;
+  events: any[];
+  onEventReceive: (event: any) => void;
+  onDateClick: (dateStr: string) => void;
 }
 
-const Calendar: React.FC<CalendarProps> = ({ events }) => {
-  const calendarRef = useRef<FullCalendar | null>(null);
+const Calendar: React.FC<CalendarProps> = ({ events, onEventReceive, onDateClick }) => {
+  const externalTasksRef = useRef<HTMLDivElement>(null);
 
-  const handleDateClick = (arg: { dateStr: string }) => {
-    const calendarApi = calendarRef.current?.getApi();
-    if (calendarApi) {
-      calendarApi.changeView("timeGridDay", arg.dateStr);
+  useEffect(() => {
+    if (externalTasksRef.current) {
+      new Draggable(externalTasksRef.current, {
+        itemSelector: ".external-task",
+        eventData: (eventEl) => {
+          const title = eventEl.getAttribute("data-title") || "Untitled Task";
+          return { title };
+        },
+      });
     }
-  };
-
-  const handleBackToMonth = () => {
-    const calendarApi = calendarRef.current?.getApi();
-    if (calendarApi) {
-      calendarApi.changeView("dayGridMonth");
-    }
-  };
-  
-  
+  }, []);
 
   return (
-    <div className="w-full max-w-4xl p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
-      <div className="flex justify-end mb-2">
-        <button
-          onClick={handleBackToMonth}
-          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Back to Month
-        </button>
+    <div>
+      {/* This div is for draggable external tasks container */}
+      <div ref={externalTasksRef} style={{ display: "none" }}>
+        {/* Your draggable task items must have class "external-task" and data-title */}
       </div>
+
       <FullCalendar
-        ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
+        initialView="timeGridWeek"
+        editable={true}
+        droppable={true}
         events={events}
-        dateClick={handleDateClick}
-        height="auto"
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: ""
-        }}
+        eventReceive={(info) => onEventReceive(info.event)}
+        dateClick={(info) => onDateClick(info.dateStr)}
       />
     </div>
   );

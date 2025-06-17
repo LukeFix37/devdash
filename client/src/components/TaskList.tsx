@@ -7,11 +7,7 @@ interface TaskListProps {
   deleteTask: (id: number) => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({
-  tasks,
-  editTask,
-  deleteTask,
-}) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks, editTask, deleteTask }) => {
   const [editTaskId, setEditTaskId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState("");
 
@@ -35,10 +31,11 @@ const TaskList: React.FC<TaskListProps> = ({
   };
 
   return (
-    <div className="widget bg-white dark:bg-gray-700 rounded-md shadow-md p-6 w-full max-w-md">
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
-        Tasks
-      </h2>
+    <div
+      id="external-tasks"
+      className="widget bg-white dark:bg-gray-700 rounded-md shadow-md p-6 w-full max-w-md"
+    >
+      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Tasks</h2>
       <ul>
         {tasks.length === 0 && (
           <li className="text-gray-600 dark:text-gray-400 italic">No tasks added yet.</li>
@@ -46,12 +43,13 @@ const TaskList: React.FC<TaskListProps> = ({
         {tasks.map((task) => (
           <li
             key={task.id}
-            draggable
+            className="fc-external-task task-item flex items-center justify-between mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md shadow-sm cursor-pointer"
             data-task-title={task.title}
+            draggable
             onDragStart={(e) => {
               e.dataTransfer.setData("text/plain", task.title);
+              e.dataTransfer.setData("text/task-id", task.id.toString());
             }}
-            className="task-item flex items-center justify-between mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md shadow-sm"
           >
             <div className="flex-grow min-w-0 mr-4">
               {editTaskId === task.id ? (
