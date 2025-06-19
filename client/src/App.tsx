@@ -17,6 +17,7 @@ const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
+  // Load dark mode preference and tasks from localStorage on initial render
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
     if (saved !== null) {
@@ -28,6 +29,7 @@ const App: React.FC = () => {
     if (savedTasks) setTasks(JSON.parse(savedTasks));
   }, []);
 
+  // Apply dark mode class to document
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
