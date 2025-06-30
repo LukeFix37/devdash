@@ -1,22 +1,31 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import taskRoutes from './routes/tasks';
-
-dotenv.config();
+import express from "express";
+import cors from "cors";
+import { MongoClient, ServerApiVersion, Db, Collection } from "mongodb";
 
 const app = express();
-const port = process.env.PORT || 5000;
+const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/tasks', taskRoutes);
+const uri = "mongodb+srv://lukefixari:<devdash101>@devdash-db.ifn7t2l.mongodb.net/?retryWrites=true&w=majority&appName=devdash-db";
 
-mongoose.connect(process.env.MONGO_URI!)
-  .then(() => {
-    console.log('MongoDB connected');
-    app.listen(port, () => console.log(`Server running on port ${port}`));
-  })
-  .catch((err) => console.error(err));
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+let db: Db;
+let tasksCollection: Collection;
+
+async function connectDB() {
+  await client.connect();
+  db = client.db("devdash"); // You can name this however you want
+  tasksCollection = db.collection("tasks");
+  console.log("Connected to MongoDB");
+}
+
+connectDB().catch(console.error);
