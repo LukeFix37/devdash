@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "./components/Header";
-import AddTask from "./components/AddTask";
+import AddTask from "./components/AddTask"; 
 import TaskList from "./components/TaskList";
 import Calendar from "./components/Calendar";
 import WeatherWidget from "./components/WeatherWidget";
@@ -44,6 +44,7 @@ const App: React.FC = () => {
   }, [tasks]);
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
+  
 
   const addTask = (title: string) => {
     const trimmed = title.trim();
