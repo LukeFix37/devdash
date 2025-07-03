@@ -39,9 +39,7 @@ const Calendar: React.FC<CalendarProps> = ({ events, onEventReceive }) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-          <span className="text-sm text-slate-600 dark:text-slate-400">
-            Drag tasks from the sidebar to schedule them
-          </span>
+
         </div>
         <div className="flex items-center space-x-2">
           <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors">
@@ -108,19 +106,8 @@ const Calendar: React.FC<CalendarProps> = ({ events, onEventReceive }) => {
       {/* Calendar Legend */}
       <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-200 dark:border-slate-700">
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-1">
-            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded"></div>
-            <span>Scheduled Tasks</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <div className="w-3 h-3 bg-slate-300 dark:bg-slate-600 rounded"></div>
-            <span>Available Slots</span>
-          </div>
         </div>
         <div className="flex items-center space-x-2">
-          <span>{events.length} scheduled tasks</span>
-          <div className="w-1 h-1 bg-slate-400 rounded-full"></div>
-          <span>Week view</span>
         </div>
       </div>
     </div>

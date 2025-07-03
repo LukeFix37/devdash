@@ -104,19 +104,19 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, editTask, deleteTask }) => {
                         </span>
                       )}
                     </div>
-                    <div className="task-buttons">
+                    <div className="task-buttons flex gap-2">
                       {editTaskId === task.id ? (
                         <>
                           <button
                             onClick={saveEdit}
-                            className="btn-save px-3 py-1 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition"
+                            className="btn-save px-3 py-1 rounded-full bg-green-600 hover:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-400 text-white text-sm font-semibold transition-all duration-150 shadow-md hover:scale-105"
                             aria-label="Save task edit"
                           >
                             Save
                           </button>
                           <button
                             onClick={cancelEditing}
-                            className="btn-cancel px-3 py-1 rounded-full bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold transition"
+                            className="btn-cancel px-3 py-1 rounded-full bg-gray-500 hover:bg-gray-600 active:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 text-white text-sm font-semibold transition-all duration-150 shadow-md hover:scale-105"
                             aria-label="Cancel task edit"
                           >
                             Cancel
@@ -126,14 +126,14 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, editTask, deleteTask }) => {
                         <>
                           <button
                             onClick={() => startEditing(task.id, task.title)}
-                            className="btn-edit px-3 py-1 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition"
+                            className="btn-edit px-3 py-1 rounded-full bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-300 text-white text-sm font-semibold transition-all duration-150 shadow-md hover:scale-105"
                             aria-label="Edit task"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => deleteTask(task.id)}
-                            className="btn-delete px-3 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"
+                            className="btn-delete px-3 py-1 rounded-full bg-red-600 hover:bg-red-700 active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 text-white text-sm font-semibold transition-all duration-150 shadow-md hover:scale-105"
                             aria-label="Delete task"
                           >
                             Delete
