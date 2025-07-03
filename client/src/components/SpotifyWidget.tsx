@@ -186,196 +186,103 @@ const SpotifyWidget: React.FC = () => {
 
   if (!token) {
     return (
-      <button
-        onClick={redirectToAuth}
-        className="btn btn-primary"
-        style={{
-          padding: '12px 24px',
-          fontSize: 16,
-          backgroundColor: '#1db954',
-          border: 'none',
-          borderRadius: 6,
-          color: '#121212',
-          cursor: 'pointer',
-          fontWeight: 'bold',
-        }}
-      >
-        Login with Spotify
-      </button>
+      <div className="widget-container spotify-widget text-center">
+        <button
+          onClick={redirectToAuth}
+          className="btn-modern bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-full shadow-md interactive-scale focus-ring"
+        >
+          <svg className="w-5 h-5 mr-2 inline" fill="none" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" fill="#1db954" />
+            <path d="M8 15s1.5-1 4-1 4 1 4 1" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M8 12s2-1 4-1 4 1 4 1" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M8 9s2.5-1 4-1 4 1 4 1" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          Login with Spotify
+        </button>
+      </div>
     );
   }
 
-  const buttonStyle = {
-    backgroundColor: '#1db954',
-    border: 'none',
-    borderRadius: '50%',
-    width: 40,
-    height: 40,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    cursor: 'pointer',
-  };
-
-  const playPauseStyle = {
-    ...buttonStyle,
-    width: 50,
-    height: 50,
-  };
-
   return (
-    <div
-      className="spotify-widget"
-      style={{
-        maxWidth: 480,
-        margin: '0 auto',
-        padding: 16,
-        border: '1px solid #ddd',
-        borderRadius: 8,
-        backgroundColor: '#1db954',
-        color: 'white',
-        fontFamily: 'Arial, sans-serif',
-      }}
-    >
-      <input
-        type="text"
-        placeholder="Search songs..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        style={{
-          width: '100%',
-          padding: '8px 12px',
-          borderRadius: 4,
-          border: 'none',
-          marginBottom: 12,
-          fontSize: 16,
-        }}
-      />
-      <button
-        onClick={searchSpotify}
-        style={{
-          width: '100%',
-          padding: '10px 0',
-          borderRadius: 4,
-          border: 'none',
-          backgroundColor: '#191414',
-          color: '#1db954',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          marginBottom: 16,
-        }}
-      >
-        Search
-      </button>
-
-      <div
-        style={{
-          maxHeight: 300,
-          overflowY: 'auto',
-          backgroundColor: '#121212',
-          borderRadius: 6,
-          padding: 8,
-          boxShadow: '0 0 8px rgba(0,0,0,0.8)',
-          marginBottom: 16,
-        }}
-      >
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {results.map((track) => (
-            <li
-              key={track.id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '8px 12px',
-                borderBottom: '1px solid #333',
-                cursor: 'default',
-              }}
-              title={`${track.name} — ${track.artists.map((a) => a.name).join(', ')}`}
-            >
-              <span
-                style={{
-                  flexGrow: 1,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {track.name} — {track.artists.map((a) => a.name).join(', ')}
-              </span>
-              <button
-                onClick={() => playTrack(track.uri, track)}
-                style={{
-                  marginLeft: 12,
-                  backgroundColor: '#1db954',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: 30,
-                  height: 30,
-                  color: '#121212',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                aria-label={`Play ${track.name}`}
-              >
-                <PlayIcon />
-              </button>
-            </li>
-          ))}
-        </ul>
+    <div className="widget-container spotify-widget p-0">
+      <div className="p-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
+        <svg className="w-6 h-6 text-emerald-500" fill="none" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="#1db954" />
+          <path d="M8 15s1.5-1 4-1 4 1 4 1" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M8 12s2-1 4-1 4 1 4 1" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M8 9s2.5-1 4-1 4 1 4 1" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+        <span className="font-semibold text-lg text-slate-900 dark:text-slate-100">Spotify Player</span>
       </div>
 
-      {/* Playback Controls */}
-      <div
-        style={{
-          backgroundColor: '#191414',
-          borderRadius: 6,
-          padding: 12,
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-        }}
-      >
-        <button aria-label="Previous Track" style={buttonStyle} onClick={previousTrack}>
-          <BackIcon />
-        </button>
-
-        {isPlaying ? (
-          <button aria-label="Pause" style={playPauseStyle} onClick={pauseTrack}>
-            <PauseIcon />
-          </button>
-        ) : (
-          <button
-            aria-label="Play"
-            style={playPauseStyle}
-            onClick={() => currentTrack && playTrack(currentTrack.uri, currentTrack)}
-            disabled={!currentTrack}
-          >
-            <PlayIcon />
-          </button>
-        )}
-
-        <button aria-label="Next Track" style={buttonStyle} onClick={nextTrack}>
-          <SkipIcon />
-        </button>
-      </div>
-
-      {currentTrack && (
-        <div
-          style={{
-            marginTop: 16,
-            textAlign: 'center',
-            color: 'white',
-            fontWeight: 'bold',
-          }}
-          title={`${currentTrack.name} — ${currentTrack.artists.map((a) => a.name).join(', ')}`}
+      <div className="p-4">
+        <input
+          type="text"
+          placeholder="Search songs..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="input-modern mb-3 w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition"
+        />
+        <button
+          onClick={searchSpotify}
+          className="btn-modern bg-slate-900 dark:bg-slate-800 text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 w-full mb-4"
         >
-          Now Playing: {currentTrack.name} — {currentTrack.artists.map((a) => a.name).join(', ')}
+          Search
+        </button>
+
+        <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-2 mb-4 max-h-56 overflow-y-auto scrollbar-thin">
+          <ul className="divide-y divide-slate-200 dark:divide-slate-700">
+            {results.map((track) => (
+              <li
+                key={track.id}
+                className="flex items-center justify-between py-2 px-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition"
+                title={`${track.name} — ${track.artists.map((a) => a.name).join(', ')}`}
+              >
+                <span className="truncate text-sm text-slate-800 dark:text-slate-100">
+                  {track.name} — {track.artists.map((a) => a.name).join(', ')}
+                </span>
+                <button
+                  onClick={() => playTrack(track.uri, track)}
+                  className="btn-modern bg-emerald-500 hover:bg-emerald-600 text-white w-8 h-8 p-0 ml-2 rounded-full flex items-center justify-center"
+                  aria-label={`Play ${track.name}`}
+                >
+                  <PlayIcon />
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
+
+        {/* Playback Controls */}
+        <div className="flex items-center justify-center gap-4 bg-slate-200 dark:bg-slate-900 rounded-xl p-3 mb-2">
+          <button aria-label="Previous Track" className="btn-modern bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-200 w-10 h-10 rounded-full flex items-center justify-center" onClick={previousTrack}>
+            <BackIcon />
+          </button>
+          {isPlaying ? (
+            <button aria-label="Pause" className="btn-modern bg-emerald-500 hover:bg-emerald-600 text-white w-12 h-12 rounded-full flex items-center justify-center" onClick={pauseTrack}>
+              <PauseIcon />
+            </button>
+          ) : (
+            <button
+              aria-label="Play"
+              className="btn-modern bg-emerald-500 hover:bg-emerald-600 text-white w-12 h-12 rounded-full flex items-center justify-center"
+              onClick={() => currentTrack && playTrack(currentTrack.uri, currentTrack)}
+              disabled={!currentTrack}
+            >
+              <PlayIcon />
+            </button>
+          )}
+          <button aria-label="Next Track" className="btn-modern bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-200 w-10 h-10 rounded-full flex items-center justify-center" onClick={nextTrack}>
+            <SkipIcon />
+          </button>
+        </div>
+
+        {currentTrack && (
+          <div className="mt-3 text-center text-slate-900 dark:text-slate-100 font-semibold truncate" title={`${currentTrack.name} — ${currentTrack.artists.map((a) => a.name).join(', ')}`}>
+            Now Playing: <span className="font-bold">{currentTrack.name}</span> — {currentTrack.artists.map((a) => a.name).join(', ')}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
