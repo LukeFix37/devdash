@@ -491,6 +491,7 @@ button,
     transform 0.12s cubic-bezier(0.4,0,0.2,1);
   box-shadow: 0 2px 8px 0 rgba(30,41,59,0.06);
   outline: none;
+  margin-top: 10px;
 }
 
 .btn-edit {
@@ -600,6 +601,7 @@ button svg,
     transform 0.12s cubic-bezier(0.4,0,0.2,1);
   position: relative;
   z-index: 1;
+  margin-top: 10px;
 }
 
 .btn-add-task:hover,
@@ -902,4 +904,21 @@ img, video, svg {
 .state-warning {
   border-color: #f59e0b;
   background: rgba(245, 158, 11, 0.05);
+}
+
+
+.leetcode-btn-glow {
+  box-shadow: 0 2px 12px 0 rgba(251, 191, 36, 0.08), 0 0 0 0 rgba(251, 191, 36, 0.18);
+  transition: box-shadow 0.18s cubic-bezier(0.4,0,0.2,1), transform 0.12s cubic-bezier(0.4,0,0.2,1);
+}
+.leetcode-btn-glow:hover, .leetcode-btn-glow:focus {
+  box-shadow: 0 4px 24px 0 rgba(251, 191, 36, 0.18), 0 0 0 4px rgba(251, 191, 36, 0.10);
+  transform: translateY(-2px) scale(1.04);
+}
+.leetcode-card-hover:hover {
+  box-shadow: 0 8px 32px 0 rgba(251, 191, 36, 0.10), 0 0 0 4px rgba(251, 191, 36, 0.08);
+  background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+}
+.dark .leetcode-card-hover:hover {
+  background: linear-gradient(135deg, #78350f22 0%, #f59e0b22 100%);
 }
