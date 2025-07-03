@@ -1,17 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-interface LeetCodeStats {
-  problemsSolved: number;
-  streak: number;
-  difficulty: {
-    easy: number;
-    medium: number;
-    hard: number;
-  };
-}
-
 const LeetCodeWidget: React.FC = () => {
-  const [stats, setStats] = useState<LeetCodeStats | null>(null);
   const [dailyChallenge, setDailyChallenge] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -19,15 +7,6 @@ const LeetCodeWidget: React.FC = () => {
 
   // Mock data for demonstration
   useEffect(() => {
-    const mockStats: LeetCodeStats = {
-      problemsSolved: 247,
-      streak: 12,
-      difficulty: {
-        easy: 89,
-        medium: 132,
-        hard: 26
-      }
-    };
 
     const challenges = [
       "Two Sum",
@@ -41,24 +20,12 @@ const LeetCodeWidget: React.FC = () => {
     ];
 
     setTimeout(() => {
-      setStats(mockStats);
       setDailyChallenge(challenges[Math.floor(Math.random() * challenges.length)]);
       setIsLoading(false);
     }, 1000);
   }, []);
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20';
-      case 'medium':
-        return 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20';
-      case 'hard':
-        return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20';
-      default:
-        return 'text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/20';
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -117,9 +84,6 @@ const LeetCodeWidget: React.FC = () => {
                   Easy
                 </span>
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
-                Solve today's daily challenge to maintain your streak!
-              </p>
             </div>
           )}
         </div>
