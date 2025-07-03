@@ -12,13 +12,39 @@ const SCOPES = [
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 
+const PlayIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#121212" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="8,5 19,12 8,19" />
+  </svg>
+);
+
+const PauseIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#121212" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="5" width="4" height="14" />
+    <rect x="14" y="5" width="4" height="14" />
+  </svg>
+);
+
+const BackIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#121212" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="19,5 8,12 19,19" />
+    <rect x="5" y="5" width="2" height="14" />
+  </svg>
+);
+
+const SkipIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#121212" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="5,5 16,12 5,19" />
+    <rect x="17" y="5" width="2" height="14" />
+  </svg>
+);
+
 const SpotifyWidget: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SpotifyTrack[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<SpotifyTrack | null>(null);
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
   // PKCE helpers
   const generateCodeVerifier = () => {
@@ -94,7 +120,7 @@ const SpotifyWidget: React.FC = () => {
     if (!token || !query) return;
 
     const res = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=5`,
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const data = await res.json();
@@ -160,174 +186,196 @@ const SpotifyWidget: React.FC = () => {
 
   if (!token) {
     return (
-      <div className="glass rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.301 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/>
-            </svg>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Connect Spotify</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-            Connect your Spotify account to control music playback directly from your dashboard.
-          </p>
-          <button
-            onClick={redirectToAuth}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 hover:scale-105"
-          >
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.301 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/>
-            </svg>
-            Connect with Spotify
-          </button>
-        </div>
-      </div>
+      <button
+        onClick={redirectToAuth}
+        className="btn btn-primary"
+        style={{
+          padding: '12px 24px',
+          fontSize: 16,
+          backgroundColor: '#1db954',
+          border: 'none',
+          borderRadius: 6,
+          color: '#121212',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+        }}
+      >
+        Login with Spotify
+      </button>
     );
   }
 
+  const buttonStyle = {
+    backgroundColor: '#1db954',
+    border: 'none',
+    borderRadius: '50%',
+    width: 40,
+    height: 40,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    cursor: 'pointer',
+  };
+
+  const playPauseStyle = {
+    ...buttonStyle,
+    width: 50,
+    height: 50,
+  };
+
   return (
-    <div className="glass rounded-xl border border-white/20 dark:border-gray-700/30 overflow-hidden">
-      {/* Header */}
-      <div className="p-6 bg-gradient-to-r from-green-500 to-green-600">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.301 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/>
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white">Spotify</h3>
-              <p className="text-green-100 text-sm">Music Player</p>
-            </div>
-          </div>
-          <button
-            onClick={() => setIsSearchExpanded(!isSearchExpanded)}
-            className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors duration-200"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-        </div>
-      </div>
+    <div
+      className="spotify-widget"
+      style={{
+        maxWidth: 480,
+        margin: '0 auto',
+        padding: 16,
+        border: '1px solid #ddd',
+        borderRadius: 8,
+        backgroundColor: '#1db954',
+        color: 'white',
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
+      <input
+        type="text"
+        placeholder="Search songs..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        style={{
+          width: '100%',
+          padding: '8px 12px',
+          borderRadius: 4,
+          border: 'none',
+          marginBottom: 12,
+          fontSize: 16,
+        }}
+      />
+      <button
+        onClick={searchSpotify}
+        style={{
+          width: '100%',
+          padding: '10px 0',
+          borderRadius: 4,
+          border: 'none',
+          backgroundColor: '#191414',
+          color: '#1db954',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          marginBottom: 16,
+        }}
+      >
+        Search
+      </button>
 
-      <div className="p-6 space-y-6">
-        {/* Search Section */}
-        {isSearchExpanded && (
-          <div className="space-y-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search for songs, artists..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && searchSpotify()}
-                className="w-full pl-10 pr-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
-            
-            <button
-              onClick={searchSpotify}
-              disabled={!query.trim()}
-              className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors duration-200"
+      <div
+        style={{
+          maxHeight: 300,
+          overflowY: 'auto',
+          backgroundColor: '#121212',
+          borderRadius: 6,
+          padding: 8,
+          boxShadow: '0 0 8px rgba(0,0,0,0.8)',
+          marginBottom: 16,
+        }}
+      >
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {results.map((track) => (
+            <li
+              key={track.id}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '8px 12px',
+                borderBottom: '1px solid #333',
+                cursor: 'default',
+              }}
+              title={`${track.name} — ${track.artists.map((a) => a.name).join(', ')}`}
             >
-              Search
-            </button>
-
-            {/* Search Results */}
-            {results.length > 0 && (
-              <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                {results.map((track) => (
-                  <div key={track.id} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors duration-200">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {track.name}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {track.artists.map((a) => a.name).join(', ')}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => playTrack(track.uri, track)}
-                      className="ml-3 p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200"
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Currently Playing */}
-        {currentTrack && (
-          <div className="space-y-4">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">Now Playing</p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                {currentTrack.name}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                {currentTrack.artists.map((a) => a.name).join(', ')}
-              </p>
-            </div>
-
-            {/* Playback Controls */}
-            <div className="flex items-center justify-center space-x-6">
-              <button
-                onClick={previousTrack}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              <span
+                style={{
+                  flexGrow: 1,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
-                </svg>
-              </button>
-
+                {track.name} — {track.artists.map((a) => a.name).join(', ')}
+              </span>
               <button
-                onClick={isPlaying ? pauseTrack : () => playTrack(currentTrack.uri, currentTrack)}
-                className="p-3 bg-green-600 hover:bg-green-700 text-white rounded-full transition-all duration-200 hover:scale-105"
+                onClick={() => playTrack(track.uri, track)}
+                style={{
+                  marginLeft: 12,
+                  backgroundColor: '#1db954',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: 30,
+                  height: 30,
+                  color: '#121212',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+                aria-label={`Play ${track.name}`}
               >
-                {isPlaying ? (
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                  </svg>
-                ) : (
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                )}
+                <PlayIcon />
               </button>
-
-              <button
-                onClick={nextTrack}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Status Indicator */}
-        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-          <span className="flex items-center">
-            <div className={`w-2 h-2 rounded-full mr-2 ${isPlaying ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-            {isPlaying ? 'Playing' : 'Paused'}
-          </span>
-          <span>Spotify Connected</span>
-        </div>
+            </li>
+          ))}
+        </ul>
       </div>
+
+      {/* Playback Controls */}
+      <div
+        style={{
+          backgroundColor: '#191414',
+          borderRadius: 6,
+          padding: 12,
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+        }}
+      >
+        <button aria-label="Previous Track" style={buttonStyle} onClick={previousTrack}>
+          <BackIcon />
+        </button>
+
+        {isPlaying ? (
+          <button aria-label="Pause" style={playPauseStyle} onClick={pauseTrack}>
+            <PauseIcon />
+          </button>
+        ) : (
+          <button
+            aria-label="Play"
+            style={playPauseStyle}
+            onClick={() => currentTrack && playTrack(currentTrack.uri, currentTrack)}
+            disabled={!currentTrack}
+          >
+            <PlayIcon />
+          </button>
+        )}
+
+        <button aria-label="Next Track" style={buttonStyle} onClick={nextTrack}>
+          <SkipIcon />
+        </button>
+      </div>
+
+      {currentTrack && (
+        <div
+          style={{
+            marginTop: 16,
+            textAlign: 'center',
+            color: 'white',
+            fontWeight: 'bold',
+          }}
+          title={`${currentTrack.name} — ${currentTrack.artists.map((a) => a.name).join(', ')}`}
+        >
+          Now Playing: {currentTrack.name} — {currentTrack.artists.map((a) => a.name).join(', ')}
+        </div>
+      )}
     </div>
   );
 };
