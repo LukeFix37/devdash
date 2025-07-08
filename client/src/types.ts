@@ -1,17 +1,18 @@
 // Enhanced types for the DevDash application
 
-export type Task = {
-  id: number;
+export interface Task {
+  _id: string;
   title: string;
-  completed?: boolean;
-  date?: string;
   start?: string;
-  priority?: 'low' | 'medium' | 'high';
-  tags?: string[];
-  description?: string;
-  estimatedTime?: number; // in minutes
-  createdAt?: string;
-  updatedAt?: string;
+  completed: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface newTask {
+  title: string;
+  start?: string;
+  completed?: boolean;
 }
 
 export interface SpotifyArtist {
@@ -222,7 +223,6 @@ export interface PaginatedResponse<T> extends ApiResponse<T> {
 export interface TaskFormData {
   title: string;
   description?: string;
-  priority?: Task['priority'];
   tags?: string[];
   start?: string;
   estimatedTime?: number;

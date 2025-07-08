@@ -10,14 +10,17 @@ import type { Task } from "./types";
 import type { EventInput} from "@fullcalendar/core";
 import type { DropResult } from "react-beautiful-dnd";
 import { DragDropContext} from "react-beautiful-dnd";
+import { apiService } from "./services/api";
 import "./App.css";
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load dark mode preference and tasks from localStorage on initial render
+  // Load dark mode preference from localStorage on initial render
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
     if (saved !== null) {
@@ -25,8 +28,6 @@ const App: React.FC = () => {
     } else {
       setIsDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches);
     }
-    const savedTasks = localStorage.getItem("tasks");
-    if (savedTasks) setTasks(JSON.parse(savedTasks));
   }, []);
 
   // Apply dark mode class to document
@@ -39,29 +40,80 @@ const App: React.FC = () => {
     localStorage.setItem("darkMode", isDarkMode.toString());
   }, [isDarkMode]);
 
+  // Load tasks from API on component mount
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    loadTasks();
+  }, []);
+
+  const loadTasks = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const tasksFromAPI = await apiService.getTasks();
+      setTasks(tasksFromAPI);
+    } catch (err) {
+      console.error('Failed to load tasks:', err);
+      setError('Failed to load tasks. Please check your connection.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
   
-  const addTask = (title: string) => {
+  const addTask = async (title: string) => {
     const trimmed = title.trim();
     if (!trimmed) return;
-    const newTask: Task = { id: Date.now(), title: trimmed };
-    setTasks((prev) => [...prev, newTask]);
+
+    try {
+      const newTask = await apiService.createTask({ title: trimmed });
+      setTasks((prev) => [newTask, ...prev]);
+      return newTask;
+    } catch (err) {
+      console.error('Failed to create task:', err);
+      setError('Failed to create task. Please try again.');
+      throw err;
+    }
   };
 
-  const editTask = (id: number, newTitle: string) => {
+  const editTask = async (id: string, newTitle: string) => {
     const trimmed = newTitle.trim();
     if (!trimmed) return;
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, title: trimmed } : task))
-    );
+
+    try {
+      const updatedTask = await apiService.updateTask(id, { title: trimmed });
+      setTasks((prev) =>
+        prev.map((task) => (task._id === id ? updatedTask : task))
+      );
+    } catch (err) {
+      console.error('Failed to update task:', err);
+      setError('Failed to update task. Please try again.');
+    }
   };
 
-  const deleteTask = (id: number) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
+  const deleteTask = async (id: string) => {
+    try {
+      await apiService.deleteTask(id);
+      setTasks((prev) => prev.filter((task) => task._id !== id));
+    } catch (err) {
+      console.error('Failed to delete task:', err);
+      setError('Failed to delete task. Please try again.');
+    }
+  };
+
+  const toggleTaskCompleted = async (id: string) => {
+    const task = tasks.find(t => t._id === id);
+    if (!task) return;
+
+    try {
+      const updatedTask = await apiService.updateTask(id, { completed: !task.completed });
+      setTasks((prev) =>
+        prev.map((t) => (t._id === id ? updatedTask : t))
+      );
+    } catch (err) {
+      console.error('Failed to toggle task completion:', err);
+      setError('Failed to update task. Please try again.');
+    }
   };
 
   // Handle dropping tasks inside the TaskList (reordering)
@@ -73,30 +125,71 @@ const App: React.FC = () => {
       const [removed] = newTasks.splice(result.source.index, 1);
       newTasks.splice(result.destination.index, 0, removed);
       setTasks(newTasks);
+      // Note: You could implement a bulk update API call here if you want to persist the order
     }
   };
 
   // Handle drop onto calendar from FullCalendar external drag
-  const handleEventReceive = (taskId: number, date: Date) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId ? { ...task, start: date.toISOString() } : task
-      )
-    );
+  const handleEventReceive = async (taskId: string, date: Date) => {
+    try {
+      const updatedTask = await apiService.updateTask(taskId, { start: date.toISOString() });
+      setTasks((prev) =>
+        prev.map((task) =>
+          task._id === taskId ? updatedTask : task
+        )
+      );
+    } catch (err) {
+      console.error('Failed to schedule task:', err);
+      setError('Failed to schedule task. Please try again.');
+    }
   };
 
   const taskEvents: EventInput[] = tasks
     .filter((task) => task.start)
     .map((task) => ({
-      id: String(task.id),
+      id: task._id,
       title: task.title,
       start: task.start,
     }));
+
+  const clearError = () => setError(null);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen gradient-bg-subtle flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading your tasks...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="min-h-screen gradient-bg-subtle">
         <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+
+        {/* Error Banner */}
+        {error && (
+          <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 px-4 py-3 rounded mx-4 mt-4 mb-4 flex justify-between items-center">
+            <span>{error}</span>
+            <div className="flex gap-2">
+              <button 
+                onClick={loadTasks}
+                className="text-red-700 dark:text-red-400 hover:text-red-900 dark:hover:text-red-200 font-medium"
+              >
+                Retry
+              </button>
+              <button 
+                onClick={clearError}
+                className="text-red-700 dark:text-red-400 hover:text-red-900 dark:hover:text-red-200"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
 
         <main className="main-container">
           <div className="dashboard-grid">
@@ -178,7 +271,12 @@ const App: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
+                    <TaskList 
+                      tasks={tasks} 
+                      editTask={editTask} 
+                      deleteTask={deleteTask}
+                      toggleCompleted={toggleTaskCompleted}
+                    />
                   </div>
 
                   <div className="card-modern card-hover fadeIn">
@@ -213,7 +311,12 @@ const App: React.FC = () => {
                       Back
                     </button>
                   </div>
-                  <TaskList tasks={tasks} editTask={editTask} deleteTask={deleteTask} />
+                  <TaskList 
+                    tasks={tasks} 
+                    editTask={editTask} 
+                    deleteTask={deleteTask}
+                    toggleCompleted={toggleTaskCompleted}
+                  />
                   <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
                     <AddTask addTask={addTask} />
                   </div>

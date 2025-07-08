@@ -1,31 +1,45 @@
+// backend/server.ts
 import express from "express";
 import cors from "cors";
-import { MongoClient, ServerApiVersion, Db, Collection } from "mongodb";
+import mongoose from "mongoose";
+import taskRoutes from "./routes/tasks";
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-const uri = "mongodb+srv://lukefixari:<devdash101>@devdash-db.ifn7t2l.mongodb.net/?retryWrites=true&w=majority&appName=devdash-db";
-
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-let db: Db;
-let tasksCollection: Collection;
+// MongoDB connection using Mongoose
+const uri = "mongodb+srv://lukefixari:<devdash101>@devdash-db.ifn7t2l.mongodb.net/devdash?retryWrites=true&w=majority&appName=devdash-db";
 
 async function connectDB() {
-  await client.connect();
-  db = client.db("devdash"); // You can name this however you want
-  tasksCollection = db.collection("tasks");
-  console.log("Connected to MongoDB");
+  try {
+    await mongoose.connect(uri);
+    console.log("Connected to MongoDB with Mongoose");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    process.exit(1);
+  }
 }
 
-connectDB().catch(console.error);
+// Connect to MongoDB
+connectDB();
+
+// Routes
+app.use("/api/tasks", taskRoutes);
+
+// Basic health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", message: "Server is running" });
+});
+
+// Error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

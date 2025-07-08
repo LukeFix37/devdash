@@ -10,6 +10,16 @@ interface CalendarProps {
   onEventReceive: (taskId: number, date: Date) => void;
 }
 
+const handleEventReceive = (info: any) => {
+  const { draggedEl } = info;
+  const taskId = draggedEl.getAttribute('data-task-id'); // This is already a string
+  const date = info.date;
+  
+  if (taskId && onEventReceive) {
+    onEventReceive(taskId, date); // No need to parse as number anymore
+  }
+};
+
 const Calendar: React.FC<CalendarProps> = ({ events, onEventReceive }) => {
   const calendarRef = useRef<HTMLDivElement>(null);
 

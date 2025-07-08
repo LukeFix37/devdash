@@ -1,36 +1,43 @@
 import React, { useState } from "react";
 
 interface AddTaskProps {
-  addTask: (title: string) => void;
+  addTask: (title: string) => Promise<any>;
 }
 
 const AddTask: React.FC<AddTaskProps> = ({ addTask }) => {
   const [title, setTitle] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
       setIsSubmitting(true);
+      setError(null);
 
-      // Simulate API delay for loading state
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      addTask(title);
-      setTitle("");
-      setIsExpanded(false);
-      setIsSubmitting(false);
+      try {
+        await addTask(title);
+        setTitle("");
+        setIsExpanded(false);
+      } catch (err) {
+        console.error('Failed to add task:', err);
+        setError('Failed to add task. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
   const handleInputFocus = () => {
     setIsExpanded(true);
+    setError(null);
   };
 
   const handleCancel = () => {
     setTitle("");
     setIsExpanded(false);
+    setError(null);
   };
 
   return (
@@ -46,7 +53,9 @@ const AddTask: React.FC<AddTaskProps> = ({ addTask }) => {
             disabled={isSubmitting}
             className={`input-modern focus-ring transition-all duration-300 ${
               isExpanded ? 'scale-101' : ''
-            } ${isSubmitting ? 'state-loading cursor-not-allowed' : ''}`}
+            } ${isSubmitting ? 'state-loading cursor-not-allowed' : ''} ${
+              error ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
+            }`}
           />
 
           {/* Input icon with enhanced animations */}
@@ -67,10 +76,19 @@ const AddTask: React.FC<AddTaskProps> = ({ addTask }) => {
           </div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="text-red-600 dark:text-red-400 text-sm flex items-center gap-2 animate-fade-in">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {error}
+          </div>
+        )}
+
         {/* Expanded form with smooth animations */}
         {isExpanded && (
           <div className="space-y-4 animate-fade-in-up">
-
             {/* Action buttons with enhanced interactions */}
             <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
               <button
@@ -89,7 +107,6 @@ const AddTask: React.FC<AddTaskProps> = ({ addTask }) => {
               </button>
 
               <div className="flex space-x-3">
-
                 <button
                   type="submit"
                   disabled={!title.trim() || isSubmitting}
